@@ -64,12 +64,26 @@ export function ScrollVideo({ src, poster, className, onProgress }: Props) {
         trigger?.kill();
       };
     } else {
+      // Mobile / touch: video loops independently via `loop` attr;
+      // beats advance on a 14s timeline decoupled from the video.
+      let beatsTimeline: gsap.core.Tween | null = null;
+      const progressProxy = { value: 0 };
+
       const observer = new IntersectionObserver(
         (entries) => {
           entries.forEach((entry) => {
             if (entry.isIntersecting) {
               video.play().catch(() => {});
-              onProgress?.(1);
+              if (!beatsTimeline) {
+                beatsTimeline = gsap.to(progressProxy, {
+                  value: 1,
+                  duration: 12,
+                  ease: 'none',
+                  repeat: -1,
+                  onRepeat: () => { progressProxy.value = 0; },
+                  onUpdate: () => onProgress?.(progressProxy.value),
+                });
+              }
             }
           });
         },
@@ -77,7 +91,10 @@ export function ScrollVideo({ src, poster, className, onProgress }: Props) {
       );
 
       observer.observe(container);
-      return () => observer.disconnect();
+      return () => {
+        observer.disconnect();
+        beatsTimeline?.kill();
+      };
     }
   }, [isDesktop, onProgress]);
 
