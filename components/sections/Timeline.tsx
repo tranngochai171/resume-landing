@@ -22,7 +22,7 @@ export function Timeline() {
   return (
     <section className="bg-bg px-6 py-24 md:px-12 md:py-48">
       <div className="mx-auto max-w-content">
-        <SectionNumber number="02" title="Ledger" />
+        <SectionNumber number="03" title="Ledger" />
         <motion.ul
           variants={container}
           initial="hidden"

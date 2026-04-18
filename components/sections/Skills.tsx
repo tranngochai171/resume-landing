@@ -22,7 +22,7 @@ export function Skills() {
   return (
     <section id="skills" className="bg-bg px-6 py-24 md:px-12 md:py-48">
       <div className="mx-auto max-w-content">
-        <SectionNumber number="03" title="Stack" />
+        <SectionNumber number="04" title="Stack" />
         <motion.div
           variants={container}
           initial="hidden"

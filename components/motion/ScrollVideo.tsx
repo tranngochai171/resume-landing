@@ -34,13 +34,17 @@ export function ScrollVideo({ src, poster, className }: Props) {
 
     if (isDesktop && !isTouch) {
       let trigger: ScrollTrigger | null = null;
+      // Pin the nearest <section> ancestor so overlays (name, corner metadata,
+      // teasers) stay in sync with the scrubbed video. Without this, pinning
+      // only the video div breaks the flex layout and the overlays scroll past.
+      const pinTarget = (container.closest('section') as HTMLElement) ?? container;
 
       const onReady = () => {
         trigger = ScrollTrigger.create({
-          trigger: container,
+          trigger: pinTarget,
           start: 'top top',
           end: () => `+=${window.innerHeight * 3}`,
-          pin: true,
+          pin: pinTarget,
           scrub: 0.5,
           onUpdate: (self) => {
             if (video.duration && !isNaN(video.duration)) {
