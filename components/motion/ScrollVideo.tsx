@@ -11,9 +11,10 @@ interface Props {
   src: string;
   poster: string;
   className?: string;
+  onProgress?: (p: number) => void;
 }
 
-export function ScrollVideo({ src, poster, className }: Props) {
+export function ScrollVideo({ src, poster, className, onProgress }: Props) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const isDesktop = useMediaQuery('(min-width: 1024px)');
@@ -29,14 +30,12 @@ export function ScrollVideo({ src, poster, className }: Props) {
     ).matches;
 
     if (prefersReducedMotion) {
+      onProgress?.(1);
       return;
     }
 
     if (isDesktop && !isTouch) {
       let trigger: ScrollTrigger | null = null;
-      // Pin the nearest <section> ancestor so overlays (name, corner metadata,
-      // teasers) stay in sync with the scrubbed video. Without this, pinning
-      // only the video div breaks the flex layout and the overlays scroll past.
       const pinTarget = (container.closest('section') as HTMLElement) ?? container;
 
       const onReady = () => {
@@ -50,6 +49,7 @@ export function ScrollVideo({ src, poster, className }: Props) {
             if (video.duration && !isNaN(video.duration)) {
               video.currentTime = video.duration * self.progress;
             }
+            onProgress?.(self.progress);
           },
         });
       };
@@ -68,9 +68,8 @@ export function ScrollVideo({ src, poster, className }: Props) {
         (entries) => {
           entries.forEach((entry) => {
             if (entry.isIntersecting) {
-              video.play().catch(() => {
-                /* Autoplay blocked — poster stays */
-              });
+              video.play().catch(() => {});
+              onProgress?.(1);
             }
           });
         },
@@ -78,10 +77,9 @@ export function ScrollVideo({ src, poster, className }: Props) {
       );
 
       observer.observe(container);
-
       return () => observer.disconnect();
     }
-  }, [isDesktop]);
+  }, [isDesktop, onProgress]);
 
   return (
     <div ref={containerRef} className={className}>
