@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { Fraunces, Space_Grotesk, JetBrains_Mono } from 'next/font/google';
+import { Fraunces, Inter, JetBrains_Mono, Space_Grotesk } from 'next/font/google';
 import './globals.css';
 
 const fraunces = Fraunces({
@@ -9,10 +9,10 @@ const fraunces = Fraunces({
   display: 'swap',
 });
 
-const spaceGrotesk = Space_Grotesk({
+const inter = Inter({
   subsets: ['latin'],
   variable: '--font-body',
-  weight: ['500', '700'],
+  weight: ['400', '500', '600'],
   display: 'swap',
 });
 
@@ -23,6 +23,12 @@ const jetbrainsMono = JetBrains_Mono({
   display: 'swap',
 });
 
+const condensed = Space_Grotesk({
+  subsets: ['latin'],
+  variable: '--font-condensed',
+  weight: ['500', '700'],
+  display: 'swap',
+});
 
 export const metadata: Metadata = {
   title: 'Tran Ngoc Hai — Senior Fullstack Developer',
@@ -46,7 +52,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${fraunces.variable} ${spaceGrotesk.variable} ${jetbrainsMono.variable}`}
+      className={`${fraunces.variable} ${inter.variable} ${jetbrainsMono.variable} ${condensed.variable}`}
     >
       <body className="bg-bg text-fg font-body antialiased">{children}</body>
     </html>
