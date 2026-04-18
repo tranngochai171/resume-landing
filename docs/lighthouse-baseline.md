@@ -50,4 +50,17 @@ pnpm exec lighthouse http://localhost:3001 \
 
 ## Known LCP caveat
 
-Run-to-run LCP varies between 1.3s and 3.1s in local testing — hero video decode time is variable. Production (Vercel edge CDN + Brotli) should stabilize this under the 2.5s target.
+Run-to-run LCP varies between 1.3s and 3.1s in local testing — hero video decode time is variable.
+
+## Production (Vercel edge, `https://topy-tran.vercel.app`)
+
+| Category | Score |
+|----------|-------|
+| Performance | 95 |
+| Accessibility | 100 |
+| Best Practices | 100 |
+| SEO | 100 |
+
+Core Web Vitals: LCP 2.9s · CLS 0 · TBT 0ms · Speed Index 1.4s.
+
+Perf drops 100→95 from local due to geographic distance and real network conditions. LCP slightly over 2.5s target but acceptable for a video-hero site. CLS improved to perfect 0 on prod.
