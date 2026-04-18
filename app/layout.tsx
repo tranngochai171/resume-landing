@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { Fraunces, Inter, JetBrains_Mono, Space_Grotesk } from 'next/font/google';
+import { getYearsOfExperience } from '@/lib/experience';
 import './globals.css';
 
 const fraunces = Fraunces({
@@ -38,7 +39,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: 'Tran Ngoc Hai — Senior Fullstack Developer',
     description:
-      'Senior Fullstack Developer · 6+ years · FinTech · HealthTech · SaaS',
+      `Senior Fullstack Developer · ${getYearsOfExperience()}+ years · FinTech · HealthTech · SaaS`,
     images: ['/og-image.jpg'],
     type: 'website',
   },
