@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://topytran.vercel.app/sitemap.xml
+Sitemap: https://topy-tran.vercel.app/sitemap.xml

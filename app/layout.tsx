@@ -31,7 +31,7 @@ const condensed = Space_Grotesk({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL('https://topytran.vercel.app'),
+  metadataBase: new URL('https://topy-tran.vercel.app'),
   title: 'Tran Ngoc Hai — Senior Fullstack Developer',
   description:
     'Senior Fullstack Developer shipping production apps in FinTech, HealthTech, SaaS, and eCommerce — from SEC-regulated investment platforms to AI-powered recruitment tools.',
