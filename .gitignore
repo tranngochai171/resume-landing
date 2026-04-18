@@ -8,3 +8,13 @@ build/
 Thumbs.db
 *.log
 .vercel
+
+# Next.js static export
+out/
+
+# Next.js env files
+.env*.local
+
+# TypeScript
+*.tsbuildinfo
+next-env.d.ts
