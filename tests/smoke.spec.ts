@@ -20,7 +20,7 @@ test.describe('Resume landing — smoke', () => {
 
   test('hero name renders', async ({ page }) => {
     await page.goto('/');
-    await expect(page.getByRole('heading', { name: /TRAN NGOC HAI/i })).toBeVisible();
+    await expect(page.locator('[data-beat="intro"]')).toContainText(/TRAN NGOC HAI/i);
   });
 
   test('all section anchors exist', async ({ page }) => {
@@ -56,6 +56,23 @@ test.describe('Resume landing — smoke', () => {
     await page.waitForLoadState('networkidle');
     const paused = await page.locator('video').first().evaluate((v: HTMLVideoElement) => v.paused);
     expect(paused).toBe(true);
+    await context.close();
+  });
+
+  test('hero beats render at initial scroll (intro visible)', async ({ page }) => {
+    await page.goto('/');
+    await page.waitForLoadState('networkidle');
+    const intro = page.locator('[data-beat="intro"]');
+    await expect(intro).toHaveText(/TRAN NGOC HAI/);
+  });
+
+  test('reduced-motion: portfolio + invitation beats present', async ({ browser }) => {
+    const context = await browser.newContext({ reducedMotion: 'reduce' });
+    const page = await context.newPage();
+    await page.goto('/');
+    await page.waitForLoadState('networkidle');
+    await expect(page.locator('[data-beat="portfolio"]')).toContainText(/Dalmore/);
+    await expect(page.locator('[data-beat="invitation"]')).toContainText(/See the work/i);
     await context.close();
   });
 });
