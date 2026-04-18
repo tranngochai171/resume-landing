@@ -128,18 +128,19 @@ export function HeroReveal({ progressRef }: Props) {
         </div>
       </div>
 
-      {/* Beats (all centered, absolute, mount together) */}
+      {/* Beats (all centered, absolute, mount together). drop-shadow ensures
+          readability when text overlaps the bright open-MacBook screen. */}
       <h1
         data-beat="intro"
         role="img"
         aria-label="Tran Ngoc Hai"
-        className="absolute left-1/2 top-1/2 w-full -translate-x-1/2 -translate-y-1/2 text-center font-display text-5xl font-light leading-none tracking-tight text-fg md:text-7xl lg:text-display-xl"
+        className="absolute left-1/2 top-1/2 w-full -translate-x-1/2 -translate-y-1/2 text-center font-display text-5xl font-light leading-none tracking-tight text-fg [text-shadow:0_2px_20px_rgba(0,0,0,0.85)] md:text-7xl lg:text-display-xl"
       >
         TRAN NGOC HAI
       </h1>
       <p
         data-beat="nickname"
-        className="absolute left-1/2 top-[calc(50%+4.5rem)] w-full -translate-x-1/2 text-center font-body text-base italic text-fg-muted md:text-lg"
+        className="absolute left-1/2 top-[calc(50%+4.5rem)] w-full -translate-x-1/2 text-center font-body text-base italic text-fg/80 [text-shadow:0_2px_12px_rgba(0,0,0,0.85)] md:text-lg"
       >
         — but you can call me Topy —
       </p>
@@ -147,32 +148,32 @@ export function HeroReveal({ progressRef }: Props) {
         data-beat="role"
         className="absolute left-1/2 top-1/2 w-full -translate-x-1/2 -translate-y-1/2 text-center"
       >
-        <div className="font-display text-5xl font-light leading-none tracking-tight text-fg md:text-7xl">
+        <div className="font-display text-5xl font-light leading-none tracking-tight text-fg [text-shadow:0_2px_20px_rgba(0,0,0,0.85)] md:text-7xl">
           Senior Fullstack
         </div>
-        <div className="mt-3 font-condensed text-xs font-bold uppercase tracking-widest text-fg-muted">
+        <div className="mt-3 font-condensed text-xs font-bold uppercase tracking-widest text-fg/80 [text-shadow:0_2px_12px_rgba(0,0,0,0.85)]">
           6+ years shipping
         </div>
       </div>
       <div
         data-beat="portfolio"
-        className="absolute left-1/2 top-1/2 w-full -translate-x-1/2 -translate-y-1/2 px-6 text-center"
+        className="absolute left-1/2 top-[calc(50%-5rem)] w-full -translate-x-1/2 -translate-y-1/2 px-6 text-center md:top-[calc(50%-6rem)]"
       >
-        <div className="font-condensed text-lg font-bold uppercase tracking-[0.2em] text-fg md:text-2xl">
+        <div className="font-condensed text-lg font-bold uppercase tracking-[0.2em] text-fg [text-shadow:0_2px_20px_rgba(0,0,0,0.85)] md:text-2xl">
           Dalmore · Nestwell · Zeligate · Trailer2you
         </div>
-        <div className="mt-2 font-mono text-[11px] uppercase tracking-widest text-fg-muted">
-          + more
+        <div className="mt-2 font-mono text-[11px] uppercase tracking-widest text-fg/70 [text-shadow:0_2px_12px_rgba(0,0,0,0.85)]">
+          &amp; more on the way
         </div>
       </div>
       <div
         data-beat="invitation"
         className="absolute left-1/2 top-1/2 w-full -translate-x-1/2 -translate-y-1/2 text-center"
       >
-        <div className="font-condensed text-sm font-bold uppercase tracking-[0.3em] text-fg-muted">
+        <div className="font-condensed text-sm font-bold uppercase tracking-[0.3em] text-fg [text-shadow:0_2px_12px_rgba(0,0,0,0.85)]">
           See the work
         </div>
-        <div className="mt-3 animate-pulse font-display text-3xl text-fg">↓</div>
+        <div className="mt-3 animate-pulse font-display text-3xl text-fg [text-shadow:0_2px_12px_rgba(0,0,0,0.85)]">↓</div>
       </div>
 
       {/* Progress ticks (watch-dial, bottom-center, 0.50→1.00) */}
@@ -181,7 +182,7 @@ export function HeroReveal({ progressRef }: Props) {
           <span
             key={i}
             data-tick={i}
-            className="block h-[2px] w-8 bg-fg-muted"
+            className="block h-[2px] w-8 bg-fg/80"
             style={{ opacity: 0 }}
           />
         ))}

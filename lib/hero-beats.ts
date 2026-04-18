@@ -4,7 +4,7 @@ export interface Beat {
 }
 
 export const beats: Beat[] = [
-  { id: 'intro',      range: [0.00, 0.22] },
+  { id: 'intro',      range: [-0.10, 0.22] },
   { id: 'nickname',   range: [0.20, 0.42] },
   { id: 'role',       range: [0.40, 0.62] },
   { id: 'portfolio',  range: [0.60, 0.87] },
