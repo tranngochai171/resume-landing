@@ -7,7 +7,7 @@ export const fadeUp: Variants = {
     y: 0,
     transition: {
       duration: 0.8,
-      ease: [0.215, 0.61, 0.355, 1],
+      ease: [0.215, 0.61, 0.355, 1] as const,
     },
   },
 };
@@ -28,6 +28,6 @@ export const pillPop: Variants = {
   visible: {
     opacity: 1,
     scale: 1,
-    transition: { duration: 0.25, ease: [0.33, 1, 0.68, 1] },
+    transition: { duration: 0.25, ease: [0.33, 1, 0.68, 1] as const },
   },
 };
