@@ -1,6 +1,5 @@
 'use client';
 
-import Image from 'next/image';
 import { LeaderDots } from '@/components/ui/LeaderDots';
 import { FadeUp } from '@/components/motion/FadeUp';
 import type { Case } from '@/lib/work-data';
@@ -9,15 +8,18 @@ export function CaseCard({ case: c }: { case: Case }) {
   return (
     <article className="mb-32 md:mb-48">
       <div className="grid grid-cols-1 gap-12 md:grid-cols-[2fr_1fr]">
-        <FadeUp className="aspect-[4/3] bg-bg-elev">
+        <FadeUp className="aspect-[3/4] bg-bg-elev md:aspect-[4/3]">
           {c.media.type === 'image' && (
-            <Image
-              src={c.media.src}
-              alt={c.name}
-              width={1200}
-              height={900}
-              className="h-full w-full object-cover"
-            />
+            <picture>
+              <source media="(min-width: 768px)" srcSet={c.media.src} />
+              <img
+                src={c.media.mobileSrc}
+                alt={c.name}
+                loading="lazy"
+                decoding="async"
+                className="h-full w-full object-cover"
+              />
+            </picture>
           )}
           {c.media.type === 'video' && (
             <video
