@@ -28,7 +28,7 @@ export function About() {
           </FadeUp>
 
           <SplitReveal
-            as="blockquote"
+            as="div"
             trigger="scroll"
             splitBy="words"
             stagger={0.03}

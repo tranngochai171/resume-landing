@@ -39,7 +39,7 @@ export const metadata: Metadata = {
     title: 'Tran Ngoc Hai — Senior Fullstack Developer',
     description:
       'Senior Fullstack Developer · 6+ years · FinTech · HealthTech · SaaS',
-    images: ['/og-image.png'],
+    images: ['/og-image.jpg'],
     type: 'website',
   },
   twitter: { card: 'summary_large_image' },

@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://topytran.vercel.app/sitemap.xml

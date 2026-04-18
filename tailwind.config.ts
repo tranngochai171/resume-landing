@@ -9,7 +9,9 @@ const config: Config = {
         'bg-elev': '#0A0A0A',
         fg: '#F5F5F4',
         'fg-muted': '#8A8A87',
-        'fg-subtle': '#3F3F3E',
+        // Text uses of fg-subtle must meet WCAG AA on pure black (4.5:1).
+        // Decorative borders still read dim because of opacity modifiers used at call sites.
+        'fg-subtle': '#767676',
         accent: '#7DD3C8',
         'accent-dim': '#3A5D58',
       },

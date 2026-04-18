@@ -39,9 +39,15 @@ export function SplitReveal({
 
     if (prefersReducedMotion) return;
 
+    // Preserve readable text for assistive tech before splitting.
+    const accessibleText = el.textContent ?? '';
     const split = new SplitText(el, {
       type: splitBy,
     });
+    // Wrap the animated chars/words as role="img" with aria-label so screen
+    // readers announce the full string (not each letter) and lint rules pass.
+    el.setAttribute('role', 'img');
+    el.setAttribute('aria-label', accessibleText);
 
     const targets = splitBy === 'chars' ? split.chars : split.words;
 
