@@ -75,4 +75,38 @@ test.describe('Resume landing — smoke', () => {
     await expect(page.locator('[data-beat="invitation"]')).toContainText(/See the work/i);
     await context.close();
   });
+
+  test('about portrait renders with correct alt and dimensions', async ({ page }) => {
+    await page.goto('/');
+    await page.waitForLoadState('networkidle');
+    const portrait = page.locator('#about img[alt="Topy Tran"]');
+    await expect(portrait).toBeVisible();
+    await expect(portrait).toHaveAttribute('width', '480');
+    await expect(portrait).toHaveAttribute('height', '600');
+    await expect(portrait).toHaveAttribute('loading', 'lazy');
+  });
+
+  test('about portrait has AVIF and WebP sources', async ({ page }) => {
+    await page.goto('/');
+    const sources = page.locator('#about picture source');
+    const count = await sources.count();
+    expect(count).toBeGreaterThanOrEqual(4);
+    const types = await sources.evaluateAll((els) =>
+      els.map((e) => e.getAttribute('type'))
+    );
+    expect(types).toContain('image/avif');
+    expect(types).toContain('image/webp');
+  });
+
+  test('reduced-motion: portrait renders without grayscale filter', async ({ browser }) => {
+    const context = await browser.newContext({ reducedMotion: 'reduce' });
+    const page = await context.newPage();
+    await page.goto('/');
+    await page.waitForLoadState('networkidle');
+    const wrapper = page.locator('[data-scroll-desaturate]').first();
+    await expect(wrapper).toBeVisible();
+    const filter = await wrapper.evaluate((el) => getComputedStyle(el).filter);
+    expect(filter === 'none' || filter === '').toBe(true);
+    await context.close();
+  });
 });
