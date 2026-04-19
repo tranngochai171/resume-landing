@@ -7,8 +7,36 @@ export function Contact() {
   return (
     <section
       id="contact"
-      className="relative flex min-h-screen flex-col items-center justify-center bg-bg px-6 py-24 text-center md:px-12"
+      className="relative isolate flex min-h-screen flex-col items-center justify-center overflow-hidden bg-bg px-6 py-24 text-center md:px-12"
     >
+      <video
+        src="/videos/contact-ambient-mobile.mp4"
+        poster="/images/contact-poster.jpg"
+        autoPlay
+        muted
+        loop
+        playsInline
+        preload="metadata"
+        aria-hidden
+        className="pointer-events-none absolute inset-0 -z-10 h-full w-full object-cover opacity-25 mix-blend-screen motion-reduce:hidden md:hidden"
+      />
+      <video
+        src="/videos/contact-ambient.mp4"
+        poster="/images/contact-poster.jpg"
+        autoPlay
+        muted
+        loop
+        playsInline
+        preload="metadata"
+        aria-hidden
+        className="pointer-events-none absolute inset-0 -z-10 hidden h-full w-full object-cover opacity-25 mix-blend-screen motion-reduce:hidden md:block"
+      />
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-0 -z-10"
+        style={{ background: 'radial-gradient(ellipse at center, transparent 30%, #000 85%)' }}
+      />
+
       <FadeUp as="p" className="mb-8 font-mono text-xs uppercase tracking-widest text-fg-muted">
         Get in Touch
       </FadeUp>
@@ -20,7 +48,7 @@ export function Contact() {
         <SplitReveal
           trigger="scroll"
           stagger={0.04}
-          className="font-display text-4xl font-light leading-none tracking-tight text-fg transition-colors group-hover:text-accent md:text-7xl lg:text-8xl"
+          className="font-display text-[clamp(1.5rem,7vw,2.25rem)] font-light leading-none tracking-tight text-fg transition-colors [word-break:break-word] group-hover:text-accent sm:text-4xl md:text-7xl lg:text-8xl"
         >
           tranngochai171@gmail.com
         </SplitReveal>
