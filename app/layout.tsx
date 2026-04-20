@@ -57,6 +57,14 @@ export default function RootLayout({
       lang="en"
       className={`${fraunces.variable} ${inter.variable} ${jetbrainsMono.variable} ${condensed.variable}`}
     >
+      <head>
+        <link
+          rel="preload"
+          as="image"
+          href="/images/01-closed.jpg"
+          fetchPriority="high"
+        />
+      </head>
       <body className="bg-bg text-fg font-body antialiased">
         {children}
         <Analytics />
