@@ -1,8 +1,10 @@
 'use client';
 
+import { useRef } from 'react';
 import { motion } from 'framer-motion';
 import { SectionNumber } from '@/components/ui/SectionNumber';
 import { skillGroups } from '@/lib/skills-data';
+import { useSectionView } from '@/hooks/useSectionView';
 
 const container = {
   hidden: {},
@@ -19,8 +21,11 @@ const pill = {
 };
 
 export function Skills() {
+  const ref = useRef<HTMLElement>(null);
+  useSectionView('skills', ref);
+
   return (
-    <section id="skills" className="bg-bg px-6 py-24 md:px-12 md:py-48">
+    <section ref={ref} id="skills" className="bg-bg px-6 py-24 md:px-12 md:py-48">
       <div className="mx-auto max-w-content">
         <SectionNumber number="04" title="Stack" />
         <motion.div

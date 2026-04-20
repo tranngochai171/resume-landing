@@ -1,8 +1,10 @@
 'use client';
 
+import { useRef } from 'react';
 import { motion } from 'framer-motion';
 import { SectionNumber } from '@/components/ui/SectionNumber';
 import { roles } from '@/lib/timeline-data';
+import { useSectionView } from '@/hooks/useSectionView';
 
 const container = {
   hidden: {},
@@ -19,8 +21,11 @@ const row = {
 };
 
 export function Timeline() {
+  const ref = useRef<HTMLElement>(null);
+  useSectionView('timeline', ref);
+
   return (
-    <section className="bg-bg px-6 py-24 md:px-12 md:py-48">
+    <section ref={ref} className="bg-bg px-6 py-24 md:px-12 md:py-48">
       <div className="mx-auto max-w-content">
         <SectionNumber number="03" title="Ledger" />
         <motion.ul

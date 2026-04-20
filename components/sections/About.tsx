@@ -1,14 +1,20 @@
 'use client';
 
+import { useRef } from 'react';
 import { SectionNumber } from '@/components/ui/SectionNumber';
 import { FadeUp } from '@/components/motion/FadeUp';
 import { SplitReveal } from '@/components/motion/SplitReveal';
 import { ScrollDesaturate } from '@/components/motion/ScrollDesaturate';
 import { Portrait } from '@/components/ui/Portrait';
+import { useSectionView } from '@/hooks/useSectionView';
 
 export function About() {
+  const ref = useRef<HTMLElement>(null);
+  useSectionView('about', ref);
+
   return (
     <section
+      ref={ref}
       id="about"
       className="relative bg-bg px-6 py-24 md:px-12 md:py-48"
     >

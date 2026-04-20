@@ -1,10 +1,17 @@
+'use client';
+
+import { useRef } from 'react';
 import { SectionNumber } from '@/components/ui/SectionNumber';
 import { CaseCard } from './CaseCard';
 import { cases } from '@/lib/work-data';
+import { useSectionView } from '@/hooks/useSectionView';
 
 export function Work() {
+  const ref = useRef<HTMLElement>(null);
+  useSectionView('work', ref);
+
   return (
-    <section id="work" className="bg-bg px-6 py-24 md:px-12 md:py-48">
+    <section ref={ref} id="work" className="bg-bg px-6 py-24 md:px-12 md:py-48">
       <div className="mx-auto max-w-content">
         <SectionNumber number="02" title="Selected Work" />
         {cases.map((c) => (
