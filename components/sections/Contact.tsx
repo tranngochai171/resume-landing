@@ -1,11 +1,18 @@
 'use client';
 
+import { useRef } from 'react';
 import { SplitReveal } from '@/components/motion/SplitReveal';
 import { FadeUp } from '@/components/motion/FadeUp';
+import { track } from '@/lib/analytics/track';
+import { useSectionView } from '@/hooks/useSectionView';
 
 export function Contact() {
+  const ref = useRef<HTMLElement>(null);
+  useSectionView('contact', ref);
+
   return (
     <section
+      ref={ref}
       id="contact"
       className="relative isolate flex min-h-screen flex-col items-center justify-center overflow-hidden bg-bg px-6 py-24 text-center md:px-12"
     >
@@ -43,6 +50,7 @@ export function Contact() {
 
       <a
         href="mailto:tranngochai171@gmail.com"
+        onClick={() => track('contact_email')}
         className="group relative inline-block"
       >
         <SplitReveal
@@ -62,6 +70,7 @@ export function Contact() {
           href="https://linkedin.com/in/topytran"
           target="_blank"
           rel="noopener noreferrer"
+          onClick={() => track('contact_social', { network: 'linkedin' })}
           className="transition-colors hover:text-accent"
         >
           LinkedIn
@@ -71,6 +80,7 @@ export function Contact() {
           href="https://github.com/tranngochai171"
           target="_blank"
           rel="noopener noreferrer"
+          onClick={() => track('contact_social', { network: 'github' })}
           className="transition-colors hover:text-accent"
         >
           GitHub
@@ -79,6 +89,7 @@ export function Contact() {
         <a
           href="/resume/Topy_Tran_Resume_2026.pdf"
           download
+          onClick={() => track('resume_download', { source: 'contact' })}
           className="transition-colors hover:text-accent"
         >
           Download Resume (PDF)
