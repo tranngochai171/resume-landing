@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { Fraunces, Inter, JetBrains_Mono, Space_Grotesk } from 'next/font/google';
 import { getYearsOfExperience } from '@/lib/experience';
+import { Analytics } from '@/components/analytics/Analytics';
 import './globals.css';
 
 const fraunces = Fraunces({
@@ -56,7 +57,10 @@ export default function RootLayout({
       lang="en"
       className={`${fraunces.variable} ${inter.variable} ${jetbrainsMono.variable} ${condensed.variable}`}
     >
-      <body className="bg-bg text-fg font-body antialiased">{children}</body>
+      <body className="bg-bg text-fg font-body antialiased">
+        {children}
+        <Analytics />
+      </body>
     </html>
   );
 }
