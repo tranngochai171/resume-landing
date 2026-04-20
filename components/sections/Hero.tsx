@@ -3,15 +3,20 @@
 import { useRef, useCallback } from 'react';
 import { ScrollVideo } from '@/components/motion/ScrollVideo';
 import { HeroReveal } from '@/components/motion/HeroReveal';
+import { useSectionView } from '@/hooks/useSectionView';
 
 export function Hero() {
   const progressRef = useRef(0);
+  const sectionRef = useRef<HTMLElement>(null);
+  useSectionView('hero', sectionRef);
+
   const onProgress = useCallback((p: number) => {
     progressRef.current = p;
   }, []);
 
   return (
     <section
+      ref={sectionRef}
       id="hero"
       className="relative min-h-screen w-full overflow-hidden bg-bg"
     >
