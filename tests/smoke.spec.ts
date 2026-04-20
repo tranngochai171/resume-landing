@@ -109,4 +109,97 @@ test.describe('Resume landing — smoke', () => {
     expect(filter === 'none' || filter === '').toBe(true);
     await context.close();
   });
+
+  test('analytics: resume_download fires on PDF click', async ({ page }) => {
+    // Block the external Vercel analytics script so our window.va stub is not overwritten.
+    await page.route('**/va.vercel-scripts.com/**', (route) => route.abort());
+    await page.addInitScript(() => {
+      (window as unknown as { __va: unknown[] }).__va = [];
+      (window as unknown as { va: (...args: unknown[]) => void }).va = (
+        ...args: unknown[]
+      ) => {
+        (window as unknown as { __va: unknown[][] }).__va.push(args);
+      };
+    });
+    await page.goto('/');
+    await page.waitForLoadState('networkidle');
+
+    const pdf = page.getByRole('link', { name: /Download Resume/i });
+    await pdf.evaluate((el) => el.addEventListener('click', (e) => e.preventDefault()));
+    await pdf.click();
+
+    const calls = await page.evaluate(
+      () => (window as unknown as { __va: unknown[][] }).__va
+    );
+    const hit = calls.find(
+      (c) => c[0] === 'event' && (c[1] as { name?: string }).name === 'resume_download'
+    );
+    expect(hit).toBeTruthy();
+  });
+
+  test('analytics: contact_social fires for GitHub click', async ({ page }) => {
+    // Block the external Vercel analytics script so our window.va stub is not overwritten.
+    await page.route('**/va.vercel-scripts.com/**', (route) => route.abort());
+    await page.addInitScript(() => {
+      (window as unknown as { __va: unknown[] }).__va = [];
+      (window as unknown as { va: (...args: unknown[]) => void }).va = (
+        ...args: unknown[]
+      ) => {
+        (window as unknown as { __va: unknown[][] }).__va.push(args);
+      };
+    });
+    await page.goto('/');
+    await page.waitForLoadState('networkidle');
+
+    const gh = page.getByRole('link', { name: /GitHub/i });
+    await gh.evaluate((el) => el.addEventListener('click', (e) => e.preventDefault()));
+    await gh.click();
+
+    const calls = await page.evaluate(
+      () => (window as unknown as { __va: unknown[][] }).__va
+    );
+    const hit = calls.find(
+      (c) =>
+        c[0] === 'event' &&
+        (c[1] as { name?: string; data?: { network?: string } }).name ===
+          'contact_social' &&
+        (c[1] as { data?: { network?: string } }).data?.network === 'github'
+    );
+    expect(hit).toBeTruthy();
+  });
+
+  test('analytics: section_view fires once for About after scroll', async ({ page }) => {
+    // Block the external Vercel analytics script so our window.va stub is not overwritten.
+    await page.route('**/va.vercel-scripts.com/**', (route) => route.abort());
+    await page.addInitScript(() => {
+      (window as unknown as { __va: unknown[] }).__va = [];
+      (window as unknown as { va: (...args: unknown[]) => void }).va = (
+        ...args: unknown[]
+      ) => {
+        (window as unknown as { __va: unknown[][] }).__va.push(args);
+      };
+    });
+    await page.goto('/');
+    await page.waitForLoadState('networkidle');
+
+    await page.locator('#about').scrollIntoViewIfNeeded();
+    await page.waitForTimeout(500);
+
+    await page.locator('#hero').scrollIntoViewIfNeeded();
+    await page.waitForTimeout(200);
+    await page.locator('#about').scrollIntoViewIfNeeded();
+    await page.waitForTimeout(300);
+
+    const calls = await page.evaluate(
+      () => (window as unknown as { __va: unknown[][] }).__va
+    );
+    const aboutHits = calls.filter(
+      (c) =>
+        c[0] === 'event' &&
+        (c[1] as { name?: string; data?: { section?: string } }).name ===
+          'section_view' &&
+        (c[1] as { data?: { section?: string } }).data?.section === 'about'
+    );
+    expect(aboutHits).toHaveLength(1);
+  });
 });
