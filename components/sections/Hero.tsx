@@ -23,7 +23,7 @@ export function Hero() {
       <div className="relative flex min-h-screen items-center justify-center">
         <ScrollVideo
           src="/videos/macbook-scroll.mp4"
-          poster="/images/01-closed.jpg"
+          poster="/images/01-closed.webp"
           className="relative z-0 h-[60vh] w-full max-w-[1200px]"
           onProgress={onProgress}
         />
