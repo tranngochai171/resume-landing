@@ -4,11 +4,31 @@ import { getYearsOfExperience } from '@/lib/experience';
 import { Analytics } from '@/components/analytics/Analytics';
 import './globals.css';
 
+const personLd = {
+  '@context': 'https://schema.org',
+  '@type': 'Person',
+  name: 'Tran Ngoc Hai',
+  alternateName: 'Topy Tran',
+  jobTitle: 'Senior Fullstack Developer',
+  url: 'https://topy-tran.vercel.app',
+  email: 'tranngochai171@gmail.com',
+  sameAs: [
+    'https://github.com/tranngochai171',
+    'https://linkedin.com/in/topytran',
+  ],
+  knowsAbout: ['FinTech', 'HealthTech', 'SaaS', 'eCommerce', 'React', 'Next.js', 'Node.js'],
+  address: {
+    '@type': 'PostalAddress',
+    addressLocality: 'Ho Chi Minh City',
+    addressCountry: 'VN',
+  },
+};
+
 const fraunces = Fraunces({
   subsets: ['latin'],
   variable: '--font-display',
   weight: ['300', '400', '500'],
-  display: 'swap',
+  display: 'optional',
 });
 
 const inter = Inter({
@@ -58,6 +78,10 @@ export default function RootLayout({
       className={`${fraunces.variable} ${inter.variable} ${jetbrainsMono.variable} ${condensed.variable}`}
     >
       <head>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(personLd) }}
+        />
         <link
           rel="preload"
           as="image"
