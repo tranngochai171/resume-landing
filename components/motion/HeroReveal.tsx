@@ -174,7 +174,7 @@ export function HeroReveal({ progressRef }: Props) {
         <div className="font-condensed text-sm font-bold uppercase tracking-[0.3em] text-fg [text-shadow:0_2px_12px_rgba(0,0,0,0.85)]">
           See the work
         </div>
-        <div className="mt-3 animate-pulse font-display text-3xl text-fg [text-shadow:0_2px_12px_rgba(0,0,0,0.85)]">↓</div>
+        <div className="mt-3 animate-pulse motion-reduce:animate-none font-display text-3xl text-fg [text-shadow:0_2px_12px_rgba(0,0,0,0.85)]">↓</div>
       </div>
 
       {/* Progress ticks (watch-dial, bottom-center, 0.50→1.00) */}
@@ -197,7 +197,7 @@ export function HeroReveal({ progressRef }: Props) {
         <span className="font-condensed text-[10px] font-bold uppercase tracking-[0.3em] text-fg-muted">
           Scroll to discover
         </span>
-        <span className="animate-bounce text-fg-muted">↓</span>
+        <span className="animate-bounce motion-reduce:animate-none text-fg-muted">↓</span>
       </div>
     </div>
   );
