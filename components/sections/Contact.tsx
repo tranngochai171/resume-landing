@@ -76,7 +76,7 @@ export function Contact() {
       <a
         href="mailto:tranngochai171@gmail.com"
         onClick={() => track('contact_email')}
-        className="group relative inline-block"
+        className="group relative inline-block focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-accent"
       >
         <SplitReveal
           trigger="scroll"
@@ -96,7 +96,7 @@ export function Contact() {
           target="_blank"
           rel="noopener noreferrer"
           onClick={() => track('contact_social', { network: 'linkedin' })}
-          className="transition-colors hover:text-accent"
+          className="transition-colors hover:text-accent focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
         >
           LinkedIn
         </a>
@@ -106,7 +106,7 @@ export function Contact() {
           target="_blank"
           rel="noopener noreferrer"
           onClick={() => track('contact_social', { network: 'github' })}
-          className="transition-colors hover:text-accent"
+          className="transition-colors hover:text-accent focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
         >
           GitHub
         </a>
@@ -115,7 +115,7 @@ export function Contact() {
           href="/resume/Topy_Tran_Resume_2026.pdf"
           download
           onClick={() => track('resume_download', { source: 'contact' })}
-          className="transition-colors hover:text-accent"
+          className="transition-colors hover:text-accent focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
         >
           Download Resume (PDF)
         </a>
