@@ -1,6 +1,6 @@
 'use client';
 
-import { useRef } from 'react';
+import { useRef, useState, useEffect } from 'react';
 import { SplitReveal } from '@/components/motion/SplitReveal';
 import { FadeUp } from '@/components/motion/FadeUp';
 import { track } from '@/lib/analytics/track';
@@ -10,34 +10,59 @@ export function Contact() {
   const ref = useRef<HTMLElement>(null);
   useSectionView('contact', ref);
 
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const el = ref.current;
+    if (!el) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setMounted(true);
+          observer.disconnect();
+        }
+      },
+      { rootMargin: '0px 0px 100% 0px', threshold: 0 }
+    );
+
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+
   return (
     <section
       ref={ref}
       id="contact"
       className="relative isolate flex min-h-screen flex-col items-center justify-center overflow-hidden bg-bg px-6 py-24 text-center md:px-12"
     >
-      <video
-        src="/videos/contact-ambient-mobile.mp4"
-        poster="/images/contact-poster.jpg"
-        autoPlay
-        muted
-        loop
-        playsInline
-        preload="metadata"
-        aria-hidden
-        className="pointer-events-none absolute inset-0 -z-10 h-full w-full object-cover opacity-25 mix-blend-screen motion-reduce:hidden md:hidden"
-      />
-      <video
-        src="/videos/contact-ambient.mp4"
-        poster="/images/contact-poster.jpg"
-        autoPlay
-        muted
-        loop
-        playsInline
-        preload="metadata"
-        aria-hidden
-        className="pointer-events-none absolute inset-0 -z-10 hidden h-full w-full object-cover opacity-25 mix-blend-screen motion-reduce:hidden md:block"
-      />
+      {mounted && (
+        <>
+          <video
+            src="/videos/contact-ambient-mobile.mp4"
+            poster="/images/contact-poster.jpg"
+            autoPlay
+            muted
+            loop
+            playsInline
+            preload="metadata"
+            aria-hidden
+            className="pointer-events-none absolute inset-0 -z-10 h-full w-full object-cover opacity-25 mix-blend-screen motion-reduce:hidden md:hidden"
+          />
+          <video
+            src="/videos/contact-ambient.mp4"
+            poster="/images/contact-poster.jpg"
+            autoPlay
+            muted
+            loop
+            playsInline
+            preload="metadata"
+            aria-hidden
+            className="pointer-events-none absolute inset-0 -z-10 hidden h-full w-full object-cover opacity-25 mix-blend-screen motion-reduce:hidden md:block"
+          />
+        </>
+      )}
       <div
         aria-hidden
         className="pointer-events-none absolute inset-0 -z-10"
