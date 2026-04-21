@@ -11,7 +11,7 @@ export default function HomePage() {
   return (
     <SmoothScrollProvider>
       <TopNav />
-      <main>
+      <main id="main">
         <Hero />
         <About />
         <Work />
