@@ -28,6 +28,7 @@ export function CaseCard({ case: c }: { case: Case }) {
               loop
               playsInline
               autoPlay
+              aria-hidden="true"
               className="h-full w-full object-cover"
             />
           )}

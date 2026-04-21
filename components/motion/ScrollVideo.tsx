@@ -108,6 +108,7 @@ export function ScrollVideo({ src, poster, className, onProgress }: Props) {
         playsInline
         preload="metadata"
         loop={!isDesktop}
+        aria-hidden="true"
         className="h-full w-full object-contain"
       />
     </div>
