@@ -25,16 +25,22 @@ test.describe('Resume landing — smoke', () => {
 
   test('all section anchors exist', async ({ page }) => {
     await page.goto('/');
-    for (const id of ['hero', 'about', 'work', 'skills', 'contact']) {
+    for (const id of ['hero', 'about', 'work', 'timeline', 'skills', 'contact']) {
       await expect(page.locator(`#${id}`)).toBeAttached();
     }
   });
 
+  test('top nav exposes Ledger link to #timeline', async ({ page }, testInfo) => {
+    // Ledger link lives in the desktop-only nav (hidden md:flex); skip on mobile.
+    if (testInfo.project.name === 'mobile') test.skip();
+    await page.goto('/');
+    const link = page.getByRole('link', { name: /^Ledger$/i });
+    await expect(link).toHaveAttribute('href', '#timeline');
+  });
+
   test('mailto + social + PDF links wired', async ({ page }) => {
     await page.goto('/');
-    await expect(
-      page.getByRole('link', { name: /tranngochai171@gmail.com/ })
-    ).toHaveAttribute('href', 'mailto:tranngochai171@gmail.com');
+    await expect(page.locator('a[href="mailto:tranngochai171@gmail.com"]')).toBeVisible();
     await expect(page.getByRole('link', { name: /LinkedIn/i })).toHaveAttribute(
       'href',
       'https://linkedin.com/in/topytran'
@@ -45,7 +51,7 @@ test.describe('Resume landing — smoke', () => {
     );
     await expect(page.getByRole('link', { name: /Download Resume/i })).toHaveAttribute(
       'href',
-      '/resume/Topy_Tran_Resume_2026.pdf'
+      '/resume/Topy_Tran_Resume_2026_AI_Workflows.pdf'
     );
   });
 
@@ -166,6 +172,34 @@ test.describe('Resume landing — smoke', () => {
         (c[1] as { data?: { network?: string } }).data?.network === 'github'
     );
     expect(hit).toBeTruthy();
+  });
+
+  test('mobile drawer opens and shows links', async ({ browser }) => {
+    const ctx = await browser.newContext({ viewport: { width: 390, height: 844 } });
+    const page = await ctx.newPage();
+    await page.goto('/');
+    await page.waitForLoadState('networkidle');
+
+    const trigger = page.getByRole('button', { name: /open menu/i });
+    await expect(trigger).toBeVisible();
+    await trigger.click();
+
+    for (const label of ['Work', 'About', 'Ledger', 'Skills', 'Contact']) {
+      await expect(page.getByRole('link', { name: new RegExp(`^${label}$`, 'i') })).toBeVisible();
+    }
+    await page.keyboard.press('Escape');
+    await expect(trigger).toBeVisible();
+    await ctx.close();
+  });
+
+  test('footer renders with copyright, colophon, back-to-top', async ({ page }) => {
+    await page.goto('/');
+    await page.waitForLoadState('networkidle');
+    const footer = page.locator('footer');
+    await expect(footer).toBeVisible();
+    await expect(footer).toContainText(/©\s*2026\s*Tran Ngoc Hai/i);
+    await expect(footer).toContainText(/Fraunces/i);
+    await expect(footer.getByRole('link', { name: /top/i })).toHaveAttribute('href', '#main');
   });
 
   test('analytics: section_view fires once for About after scroll', async ({ page }) => {

@@ -43,7 +43,7 @@ export function CaseCard({ case: c }: { case: Case }) {
 
         <FadeUp className="flex flex-col justify-between">
           <div>
-            <span className="font-mono text-xs text-fg-subtle">{c.number}</span>
+            <span className="font-mono text-xs text-accent">{c.number}</span>
             <h3 className="mt-2 font-display text-4xl font-light leading-tight tracking-tight text-fg md:text-5xl">
               {c.name}
             </h3>
@@ -64,7 +64,7 @@ export function CaseCard({ case: c }: { case: Case }) {
               {c.stack.map((s) => (
                 <span
                   key={s}
-                  className="rounded-full border border-fg-subtle px-3 py-1 font-mono text-[11px] uppercase tracking-wider text-fg-muted"
+                  className="rounded-full border border-fg-subtle px-3 py-1 font-mono text-[11px] uppercase tracking-wider text-fg-muted transition-colors hover:border-accent hover:text-accent"
                 >
                   {s}
                 </span>

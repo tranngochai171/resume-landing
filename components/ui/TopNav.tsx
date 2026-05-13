@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
+import { MobileNav } from '@/components/ui/MobileNav';
 
 export function TopNav() {
   return (
@@ -16,16 +17,16 @@ export function TopNav() {
             T
           </Link>
           <span className="hidden font-mono text-xs uppercase tracking-widest text-fg-muted md:inline">
-            Hi, I&apos;m Topy 👋
+            Tran Ngoc Hai
           </span>
         </div>
 
         <div className="flex items-center gap-8">
           <div className="hidden items-center gap-8 md:flex">
-            {['Work', 'About', 'Skills'].map((label) => (
+            {['Work', 'About', 'Ledger', 'Skills'].map((label) => (
               <a
                 key={label}
-                href={`#${label.toLowerCase()}`}
+                href={`#${label === 'Ledger' ? 'timeline' : label.toLowerCase()}`}
                 className="font-mono text-xs uppercase tracking-widest text-fg-muted transition-colors hover:text-fg focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
               >
                 {label}
@@ -35,7 +36,7 @@ export function TopNav() {
           <a
             href="#contact"
             className={cn(
-              'font-mono text-xs uppercase tracking-widest',
+              'hidden md:inline-block font-mono text-xs uppercase tracking-widest',
               'rounded-full border border-fg-subtle px-4 py-2',
               'transition-colors hover:border-accent hover:text-accent',
               'focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent'
@@ -43,6 +44,7 @@ export function TopNav() {
           >
             Get in Touch
           </a>
+          <MobileNav />
         </div>
       </nav>
     </header>

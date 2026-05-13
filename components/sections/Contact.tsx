@@ -70,7 +70,7 @@ export function Contact() {
       />
 
       <FadeUp as="p" className="mb-8 font-mono text-xs uppercase tracking-widest text-fg-muted">
-        Get in Touch
+        Contact
       </FadeUp>
 
       <a
@@ -81,9 +81,16 @@ export function Contact() {
         <SplitReveal
           trigger="scroll"
           stagger={0.04}
-          className="font-display text-[clamp(1.5rem,7vw,2.25rem)] font-light leading-none tracking-tight text-fg transition-colors [word-break:break-word] group-hover:text-accent sm:text-4xl md:text-7xl lg:text-8xl"
+          className="block font-display text-[clamp(2rem,9vw,5rem)] font-light leading-[0.95] tracking-tight text-fg transition-colors group-hover:text-accent"
         >
-          tranngochai171@gmail.com
+          tranngochai171
+        </SplitReveal>
+        <SplitReveal
+          trigger="scroll"
+          stagger={0.04}
+          className="block font-display text-[clamp(2rem,9vw,5rem)] font-light leading-[0.95] tracking-tight text-fg-muted transition-colors group-hover:text-accent"
+        >
+          @gmail.com
         </SplitReveal>
       </a>
 
@@ -112,7 +119,7 @@ export function Contact() {
         </a>
         <span className="text-fg-subtle">·</span>
         <a
-          href="/resume/Topy_Tran_Resume_2026.pdf"
+          href="/resume/Topy_Tran_Resume_2026_AI_Workflows.pdf"
           download
           onClick={() => track('resume_download', { source: 'contact' })}
           className="transition-colors hover:text-accent focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
@@ -121,9 +128,6 @@ export function Contact() {
         </a>
       </FadeUp>
 
-      <FadeUp as="p" className="mt-24 font-mono text-[10px] uppercase tracking-widest text-fg-subtle">
-        Ho Chi Minh City · 2026
-      </FadeUp>
     </section>
   );
 }
