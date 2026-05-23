@@ -6,32 +6,31 @@ import { motion, AnimatePresence } from 'framer-motion';
 const SESSION_KEY = 'curtainSeen';
 
 export function LoadCurtain() {
-  const [visible, setVisible] = useState(false);
-  const [reduce, setReduce] = useState(false);
+  // Start visible on first render so SSR HTML covers the hero before hydration.
+  // useEffect then dismisses (immediately if seen/reduce-motion, else after 1.1s).
+  const [visible, setVisible] = useState(true);
+  const [animated, setAnimated] = useState(true);
 
   useEffect(() => {
-    if (typeof window === 'undefined') return;
-    const r = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    setReduce(r);
-    if (r) return;
-    if (sessionStorage.getItem(SESSION_KEY)) return;
+    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const seen = sessionStorage.getItem(SESSION_KEY);
+
+    if (reduce || seen) {
+      setAnimated(false);
+      setVisible(false);
+      return;
+    }
+
     sessionStorage.setItem(SESSION_KEY, '1');
-    setVisible(true);
     document.documentElement.style.overflow = 'hidden';
-  }, []);
-
-  useEffect(() => {
-    if (!visible) return;
-    const t = setTimeout(() => setVisible(false), 1100);
+    const t = setTimeout(() => setVisible(false), 700);
     return () => clearTimeout(t);
-  }, [visible]);
+  }, []);
 
   useEffect(() => {
     if (visible) return;
     document.documentElement.style.overflow = '';
   }, [visible]);
-
-  if (reduce) return null;
 
   return (
     <AnimatePresence>
@@ -39,8 +38,8 @@ export function LoadCurtain() {
         <motion.div
           aria-hidden
           initial={{ y: 0 }}
-          exit={{ y: '-100%' }}
-          transition={{ duration: 0.5, ease: [0.7, 0, 0.2, 1] }}
+          exit={animated ? { y: '-100%' } : { opacity: 0 }}
+          transition={animated ? { duration: 0.5, ease: [0.7, 0, 0.2, 1] } : { duration: 0 }}
           className="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-bg"
         >
           <motion.span

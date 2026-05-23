@@ -26,7 +26,9 @@ export function HeroReveal({ progressRef }: Props) {
       // Final-state render: show portfolio + invitation beats, hide ticks scrub.
       root.querySelectorAll<HTMLElement>('[data-beat]').forEach((el) => {
         const id = el.dataset.beat;
-        el.style.opacity = id === 'portfolio' || id === 'invitation' ? '1' : '0';
+        const show = id === 'portfolio' || id === 'invitation';
+        el.style.opacity = show ? '1' : '0';
+        el.style.visibility = show ? 'visible' : 'hidden';
       });
       root.querySelectorAll<HTMLElement>('[data-corner]').forEach((el) => {
         el.style.opacity = '0';
@@ -141,12 +143,14 @@ export function HeroReveal({ progressRef }: Props) {
       </h1>
       <p
         data-beat="nickname"
+        style={{ opacity: 0, visibility: 'hidden' }}
         className="absolute left-1/2 top-[calc(50%+4.5rem)] w-full -translate-x-1/2 text-center font-body text-base italic text-fg/80 [text-shadow:0_2px_12px_rgba(0,0,0,0.85)] md:text-lg"
       >
         — but you can call me Topy —
       </p>
       <div
         data-beat="role"
+        style={{ opacity: 0, visibility: 'hidden' }}
         className="absolute left-1/2 top-1/2 w-full -translate-x-1/2 -translate-y-1/2 text-center"
       >
         <div className="font-display text-5xl font-light leading-none tracking-tight text-fg [text-shadow:0_2px_20px_rgba(0,0,0,0.85)] md:text-7xl">
@@ -158,6 +162,7 @@ export function HeroReveal({ progressRef }: Props) {
       </div>
       <div
         data-beat="portfolio"
+        style={{ opacity: 0, visibility: 'hidden' }}
         className="absolute left-1/2 top-[calc(50%-5rem)] w-full -translate-x-1/2 -translate-y-1/2 px-6 text-center md:top-[calc(50%-6rem)]"
       >
         <div className="font-condensed text-lg font-bold uppercase tracking-[0.2em] text-fg [text-shadow:0_2px_20px_rgba(0,0,0,0.85)] md:text-2xl">
@@ -169,6 +174,7 @@ export function HeroReveal({ progressRef }: Props) {
       </div>
       <div
         data-beat="invitation"
+        style={{ opacity: 0, visibility: 'hidden' }}
         className="absolute left-1/2 top-1/2 w-full -translate-x-1/2 -translate-y-1/2 text-center"
       >
         <div className="font-condensed text-sm font-bold uppercase tracking-[0.3em] text-fg [text-shadow:0_2px_12px_rgba(0,0,0,0.85)]">
