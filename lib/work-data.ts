@@ -17,7 +17,7 @@ export const cases: Case[] = [
     role: 'Frontend Developer · Adroit Technology Solutions',
     company: 'Dalmore',
     location: 'Los Angeles, CA',
-    dates: '2024 – Present',
+    dates: '2024 – Feb 2026',
     media: { type: 'image', src: '/images/work/dalmore-desktop.jpg', mobileSrc: '/images/work/dalmore-mobile.jpg' },
     highlights: [
       '3 interconnected portals (Investor, Issuer, Compliance) under SEC regs — Reg A, CF, D',
