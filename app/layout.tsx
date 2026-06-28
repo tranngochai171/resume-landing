@@ -1,4 +1,4 @@
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
 import { Fraunces, Inter, JetBrains_Mono, Space_Grotesk } from 'next/font/google';
 import { getYearsOfExperience } from '@/lib/experience';
 import { Analytics } from '@/components/analytics/Analytics';
@@ -11,6 +11,7 @@ const personLd = {
   alternateName: 'Topy Tran',
   jobTitle: 'Senior Fullstack Developer',
   url: 'https://topy-tran.vercel.app',
+  image: 'https://topy-tran.vercel.app/images/portrait/portrait-2026-720.jpg',
   email: 'tranngochai171@gmail.com',
   sameAs: [
     'https://github.com/tranngochai171',
@@ -57,13 +58,23 @@ export const metadata: Metadata = {
   title: 'Tran Ngoc Hai — Senior Fullstack Developer',
   description:
     'Senior Fullstack Developer shipping production apps in FinTech, HealthTech, SaaS, and eCommerce — from SEC-regulated investment platforms to AI-powered recruitment tools.',
+  authors: [{ name: 'Tran Ngoc Hai', url: 'https://topy-tran.vercel.app' }],
+  keywords: ['Tran Ngoc Hai', 'Topy Tran', 'Senior Fullstack Developer', 'React', 'Next.js', 'Node.js', 'Flutter', 'Ruby on Rails', 'FinTech', 'HealthTech', 'Ho Chi Minh City'],
   openGraph: {
     title: 'Tran Ngoc Hai — Senior Fullstack Developer',
     description:
       `Senior Fullstack Developer · ${getYearsOfExperience()}+ years · FinTech · HealthTech · SaaS`,
+    url: 'https://topy-tran.vercel.app',
     type: 'website',
+    images: ['/og-image.jpg'],
   },
-  twitter: { card: 'summary_large_image' },
+  twitter: { card: 'summary_large_image', images: ['/og-image.jpg'] },
+};
+
+export const viewport: Viewport = {
+  themeColor: '#05050c',
+  width: 'device-width',
+  initialScale: 1,
 };
 
 export default function RootLayout({
@@ -80,13 +91,6 @@ export default function RootLayout({
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(personLd) }}
-        />
-        <link
-          rel="preload"
-          as="image"
-          href="/images/01-closed.webp"
-          type="image/webp"
-          fetchPriority="high"
         />
       </head>
       <body className="bg-bg text-fg font-body antialiased">
