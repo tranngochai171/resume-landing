@@ -323,6 +323,7 @@
   .os-ticker { animation: none; }
   .os-scrollcue { animation: none; }
   .os-hud-online i { animation: none; opacity: 1; }
+  .os-boot { display: none; } /* reduced-motion: never show the boot overlay (incl. the prerendered one) */
 }
 
 /* keyboard focus visibility (WCAG 2.4.7 / 2.4.11) */
@@ -332,7 +333,7 @@
 .os-footer a:focus-visible {
   outline: 2px solid var(--cyan); outline-offset: 3px; border-radius: 2px;
 }
-.os-term-input:focus-visible { outline: 1px solid rgba(0, 229, 255, .5); outline-offset: 1px; }
+/* terminal input: no focus outline by request — the blinking pink caret is the focus cue */
 
 /* ===================== v2: rail · sound · stats · dossier expand · terminal · override ===================== */
 @keyframes os-override { 0%, 100% { filter: none; transform: translate(0, 0); } 10% { filter: hue-rotate(90deg) saturate(2.4); transform: translate(-3px, 1px); } 20% { filter: invert(1); } 32% { filter: hue-rotate(-90deg); transform: translate(3px, -2px); } 48% { filter: invert(1) hue-rotate(180deg); } 60% { filter: saturate(3.2); transform: translate(-2px, 2px); } 78% { filter: hue-rotate(45deg) contrast(1.3); } 90% { filter: invert(1); } }

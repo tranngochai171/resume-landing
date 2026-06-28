@@ -30,7 +30,9 @@ const hex = () => {
 type LogEntry = { kind: 'ok'; head: string } | { kind: 'hex'; text: string };
 
 export const BootLoader = forwardRef<BootHandle>(function BootLoader(_props, ref) {
-  const [visible, setVisible] = useState(false);
+  // Start visible so the boot overlay is in the prerendered HTML and covers the
+  // page from the very first paint — otherwise the hero flashes before JS mounts it.
+  const [visible, setVisible] = useState(true);
   const [pct, setPct] = useState(0);
   const [log, setLog] = useState<LogEntry[]>([]);
   const [online, setOnline] = useState(false);
@@ -138,10 +140,12 @@ export const BootLoader = forwardRef<BootHandle>(function BootLoader(_props, ref
     let reduce = false;
     try { reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches; } catch {}
     if (reduce || bootedThisLoad) {
+      // already booted this load (or reduced-motion): dismiss the prerendered overlay
       bootedThisLoad = true;
+      document.body.style.overflow = '';
+      setVisible(false);
       return;
     }
-    setVisible(true);
     run();
     return clearAll;
     // eslint-disable-next-line react-hooks/exhaustive-deps
