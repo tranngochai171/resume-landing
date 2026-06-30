@@ -7,7 +7,7 @@ const P = '#FF2D95', CY = '#00E5FF', G = '#27e08a', M = '#7c7c98', W = '#fff';
 const c = (t: string, col: string) => `<span style="color:${col}">${t}</span>`;
 const esc = (s: unknown) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 
-interface ExecResult { out?: string; clear?: boolean; resume?: boolean; openId?: string }
+interface ExecResult { out?: string; clear?: boolean; resume?: boolean; openId?: string; breach?: boolean }
 
 function terminalData() {
   const stack = [
@@ -49,6 +49,7 @@ function terminalData() {
     c('  stack', CY) + '           tech stack',
     c('  ledger', CY) + '          work history',
     c('  resume', CY) + '          download the CV',
+    c('  breach', CY) + ' / ' + c('hack', CY) + '    play Breach Protocol',
     c('  hire', CY) + ' / ' + c('contact', CY) + '   start a conversation',
     c('  social', CY) + '          links',
     c('  clear', CY) + '           clear screen',
@@ -81,6 +82,7 @@ function terminalExec(name: string, args: string[], d: ReturnType<typeof termina
     case 'contact': return { out: d.contact, openId: 'contact' };
     case 'hire': return { out: d.hire, openId: 'contact' };
     case 'resume': case 'cv': return { out: span('downloading resume.pdf …', G), resume: true };
+    case 'breach': case 'hack': return { out: span('booting BREACH PROTOCOL … jacking in', P), breach: true };
     case 'open': case 'cd': case 'goto': {
       const t = (args[0] || '').toLowerCase().replace(/[/]/g, '');
       const map: Record<string, string> = { about: 'about', work: 'work', projects: 'work', ledger: 'ledger', stack: 'stack', terminal: 'terminal', contact: 'contact', top: 'top', home: 'top' };
@@ -102,10 +104,12 @@ function terminalExec(name: string, args: string[], d: ReturnType<typeof termina
   }
 }
 
-export function CyberTerminal({ sfx }: { sfx: (t: string) => void }) {
+export function CyberTerminal({ sfx, onBreach }: { sfx: (t: string) => void; onBreach?: () => void }) {
   const inputRef = useRef<HTMLInputElement>(null);
   const outputRef = useRef<HTMLDivElement>(null);
   const bodyRef = useRef<HTMLDivElement>(null);
+  const onBreachRef = useRef(onBreach);
+  onBreachRef.current = onBreach; // keep latest without re-running the terminal effect
 
   useEffect(() => {
     const input = inputRef.current, output = outputRef.current, body = bodyRef.current;
@@ -138,6 +142,7 @@ export function CyberTerminal({ sfx }: { sfx: (t: string) => void }) {
       if (res.clear) { output.innerHTML = ''; return; }
       if (res.out != null && res.out !== '') print(res.out);
       if (res.resume) { try { window.open(RESUME, '_blank'); } catch {} }
+      if (res.breach) { try { onBreachRef.current?.(); } catch {} }
       if (res.openId) {
         const sec = document.getElementById(res.openId);
         if (sec) {

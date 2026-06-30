@@ -398,3 +398,53 @@
 .os-override-card .h { font-family: var(--display); font-size: clamp(28px, 6vw, 52px); font-weight: 700; color: #fff; text-shadow: 0 0 30px rgba(255, 45, 149, .8); line-height: 1; }
 .os-override-card .s { font-family: var(--mono); font-size: 12px; color: var(--fg2); margin-top: 14px; line-height: 1.6; }
 .os-override-card .s .p { color: var(--pink); }
+
+/* ---------- breach protocol minigame ---------- */
+.os-breach { position: fixed; inset: 0; z-index: 1100; display: flex; align-items: center; justify-content: center; padding: clamp(14px, 3vw, 28px); }
+.os-breach-backdrop { position: absolute; inset: 0; background: rgba(3, 3, 9, .8); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); }
+.os-breach-panel { position: relative; z-index: 1; width: min(720px, 100%); max-height: 92vh; overflow: auto; background: var(--surf); border: 1px solid rgba(0, 229, 255, .32); box-shadow: 0 0 70px rgba(0, 229, 255, .12), 0 0 40px rgba(255, 45, 149, .08); padding: clamp(18px, 3vw, 28px); border-radius: 6px; animation: os-expandIn .3s ease both; }
+.os-breach-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 14px; }
+.os-breach-title { font-family: var(--mono); font-size: clamp(13px, 2vw, 16px); letter-spacing: .16em; color: var(--cyan); text-shadow: 0 0 14px rgba(0, 229, 255, .4); }
+.os-breach-title .dim { color: var(--dim); letter-spacing: .1em; }
+.os-breach-x, .os-breach-retry { cursor: pointer; font-family: var(--mono); font-size: 10.5px; letter-spacing: .14em; text-transform: uppercase; padding: 8px 13px; border-radius: 2px; transition: background .2s, box-shadow .2s; }
+.os-breach-x { background: rgba(255, 45, 149, .07); border: 1px solid rgba(255, 45, 149, .34); color: var(--pink); }
+.os-breach-x:hover { background: rgba(255, 45, 149, .16); }
+.os-breach-retry { background: rgba(0, 229, 255, .06); border: 1px solid rgba(0, 229, 255, .34); color: var(--cyan); }
+.os-breach-retry:hover { background: rgba(0, 229, 255, .15); }
+.os-breach-timer { height: 4px; background: rgba(255, 255, 255, .06); border-radius: 2px; overflow: hidden; margin-bottom: 18px; }
+.os-breach-timer-bar { height: 100%; background: linear-gradient(90deg, var(--pink), var(--cyan)); transition: width 1s linear; box-shadow: 0 0 10px rgba(0, 229, 255, .5); }
+.os-breach-label { display: block; font-family: var(--mono); font-size: 10px; letter-spacing: .2em; color: var(--dim); margin-bottom: 9px; }
+.os-breach-buffer-wrap { margin-bottom: 20px; }
+.os-breach-buffer { display: flex; flex-wrap: wrap; gap: 7px; }
+.os-breach-slot { min-width: 40px; height: 38px; display: inline-flex; align-items: center; justify-content: center; font-family: var(--mono); font-size: 13px; color: var(--cyan); border: 1px dashed rgba(255, 255, 255, .16); border-radius: 3px; background: rgba(255, 255, 255, .015); }
+.os-breach-slot.on { border-style: solid; border-color: rgba(0, 229, 255, .55); background: rgba(0, 229, 255, .08); color: #fff; text-shadow: 0 0 10px rgba(0, 229, 255, .6); }
+.os-breach-grid-wrap { display: flex; gap: clamp(16px, 3vw, 28px); flex-wrap: wrap; }
+.os-breach-matrix { display: grid; gap: 6px; flex: 1 1 280px; }
+.os-breach-cell { aspect-ratio: 1; min-width: 0; display: flex; align-items: center; justify-content: center; font-family: var(--mono); font-size: clamp(13px, 2.4vw, 17px); color: var(--muted); background: rgba(255, 255, 255, .02); border: 1px solid rgba(255, 255, 255, .07); border-radius: 3px; transition: background .12s, color .12s, box-shadow .12s; }
+.os-breach-cell.legal { cursor: pointer; color: var(--cyan); border-color: rgba(0, 229, 255, .4); background: rgba(0, 229, 255, .05); }
+.os-breach-cell.legal:hover { background: rgba(0, 229, 255, .16); color: #fff; box-shadow: 0 0 16px rgba(0, 229, 255, .35); }
+.os-breach-cell.used { color: var(--pink); border-color: rgba(255, 45, 149, .45); background: rgba(255, 45, 149, .08); }
+.os-breach-cell:disabled { cursor: default; opacity: .55; }
+.os-breach-cell.used:disabled { opacity: 1; }
+.os-breach-seqs { flex: 1 1 220px; display: flex; flex-direction: column; gap: 9px; }
+.os-breach-seq { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 9px 11px; border: 1px solid rgba(255, 255, 255, .08); border-left: 2px solid var(--pink); border-radius: 3px; background: rgba(255, 255, 255, .015); transition: border-color .2s, background .2s; }
+.os-breach-seq.done { border-left-color: var(--green); background: rgba(39, 224, 138, .07); }
+.os-breach-seq-codes { display: flex; gap: 5px; }
+.os-breach-seq-code { min-width: 32px; text-align: center; font-family: var(--mono); font-size: 12px; padding: 4px 6px; color: var(--fg); border: 1px solid rgba(255, 255, 255, .12); border-radius: 2px; }
+.os-breach-seq.done .os-breach-seq-code { color: var(--green); border-color: rgba(39, 224, 138, .4); }
+.os-breach-seq-status { font-family: var(--mono); font-size: 9.5px; letter-spacing: .12em; color: var(--dim); white-space: nowrap; }
+.os-breach-seq.done .os-breach-seq-status { color: var(--green); }
+.os-breach-foot { display: flex; align-items: center; justify-content: space-between; gap: 14px; flex-wrap: wrap; margin-top: 20px; padding-top: 16px; border-top: 1px dashed rgba(255, 255, 255, .1); }
+.os-breach-hint { font-family: var(--mono); font-size: 11px; line-height: 1.6; color: var(--muted); flex: 1 1 220px; }
+.os-breach-result { position: absolute; inset: 0; z-index: 2; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; text-align: center; padding: 24px; background: rgba(5, 5, 12, .82); backdrop-filter: blur(3px); -webkit-backdrop-filter: blur(3px); border-radius: 6px; animation: os-expandIn .3s ease both; }
+.os-breach-result .h { font-family: var(--display); font-weight: 700; font-size: clamp(30px, 7vw, 56px); line-height: 1; color: #fff; }
+.os-breach-result.won .h { text-shadow: 0 0 34px rgba(39, 224, 138, .75); }
+.os-breach-result.lost .h { text-shadow: 0 0 34px rgba(255, 45, 149, .75); }
+.os-breach-result .s { font-family: var(--mono); font-size: 12.5px; color: var(--fg2); }
+.os-breach-result-actions { display: flex; gap: 10px; margin-top: 8px; }
+.os-breach-x:focus-visible, .os-breach-retry:focus-visible, .os-breach-cell:focus-visible { outline: 2px solid var(--cyan); outline-offset: 2px; border-radius: 2px; }
+@media (max-width: 560px) { .os-breach-grid-wrap { flex-direction: column; } }
+@media (prefers-reduced-motion: reduce) {
+  .os-breach-panel, .os-breach-result { animation: none; }
+  .os-breach-timer-bar, .os-breach-cell { transition: none; }
+}
