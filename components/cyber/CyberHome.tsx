@@ -5,7 +5,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { Chakra_Petch, JetBrains_Mono } from 'next/font/google';
 import { BootLoader, type BootHandle } from './BootLoader';
 import { CyberTerminal } from './CyberTerminal';
-import { BreachGame } from './BreachGame';
+import { BreachSection, type BreachHandle } from './BreachSection';
 import { scramble } from './scramble';
 import './os.css';
 
@@ -110,7 +110,7 @@ const STATS = [
 
 const RAIL = [
   { id: 'top', num: '00' }, { id: 'about', num: '01' }, { id: 'work', num: '02' },
-  { id: 'ledger', num: '03' }, { id: 'stack', num: '04' }, { id: 'terminal', num: '05' }, { id: 'contact', num: '06' },
+  { id: 'ledger', num: '03' }, { id: 'stack', num: '04' }, { id: 'terminal', num: '05' }, { id: 'breach', num: '06' }, { id: 'contact', num: '07' },
 ];
 
 const LEDGER: { period: string; role: string; org: string; place: string; accent: Accent }[] = [
@@ -145,7 +145,7 @@ export function CyberHome() {
   const [sfxOn, setSfxOn] = useState(false);
   const [override, setOverride] = useState(false);
   const [formStatus, setFormStatus] = useState<'idle' | 'sending' | 'sent' | 'error'>('idle');
-  const [breachOpen, setBreachOpen] = useState(false);
+  const breachRef = useRef<BreachHandle>(null);
 
   const sfxOnRef = useRef(false);
   const ctxRef = useRef<AudioContext | null>(null);
@@ -446,8 +446,8 @@ export function CyberHome() {
   };
 
   const reboot = () => { sfx('click'); bootRef.current?.replay(); };
-  const openBreach = useCallback(() => { setBreachOpen(true); }, []);
-  const closeBreach = useCallback(() => { setBreachOpen(false); }, []);
+  // terminal `breach` scrolls to the section (openId), then we initiate once it's in view
+  const triggerBreach = useCallback(() => { window.setTimeout(() => breachRef.current?.start(), 750); }, []);
   const togglePanel = (i: number) => { sfx(openPanels[i] ? 'click' : 'open'); setOpenPanels((p) => ({ ...p, [i]: !p[i] })); };
 
   return (
@@ -662,13 +662,13 @@ export function CyberHome() {
           <div className="os-wrap">
             <div className="os-eyebrow" data-reveal>[ 05 // TERMINAL ]</div>
             <h2 className="os-h2" data-reveal data-scramble data-text="TERMINAL" style={{ marginBottom: 16 }}>TERMINAL</h2>
-            <p className="os-term-intro" data-reveal>Prefer a command line? This one&apos;s real. Type <span className="p">help</span> and look around — <span className="c">ls</span>, <span className="c">cat</span>, <span className="c">hire</span>. Or run <span className="p">breach</span> to jack in and play.</p>
-            <div className="os-actions" data-reveal style={{ marginBottom: 22 }}>
-              <button type="button" className="os-btn os-btn-cyan" onClick={() => { sfx('open'); openBreach(); }}>▶ RUN BREACH PROTOCOL</button>
-            </div>
-            <CyberTerminal sfx={sfx} onBreach={openBreach} />
+            <p className="os-term-intro" data-reveal>Prefer a command line? This one&apos;s real. Type <span className="p">help</span> and look around — <span className="c">ls</span>, <span className="c">cat</span>, <span className="c">hire</span>. Or run <span className="p">breach</span> to play.</p>
+            <CyberTerminal sfx={sfx} onBreach={triggerBreach} />
           </div>
         </section>
+
+        {/* ---------- breach protocol minigame ---------- */}
+        <BreachSection ref={breachRef} sfx={sfx} />
 
         {/* ---------- contact ---------- */}
         <section className="os-section os-section--pad" id="contact">
@@ -725,8 +725,6 @@ export function CyberHome() {
           </footer>
         </section>
       </main>
-
-      <BreachGame open={breachOpen} onClose={closeBreach} sfx={sfx} />
 
       {/* konami → system override */}
       <div className={`os-override-msg${override ? ' on' : ''}`} aria-hidden="true">

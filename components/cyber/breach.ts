@@ -1,23 +1,26 @@
 // Breach Protocol — pure game logic (no React/DOM), unit-tested in breach.test.ts.
-// A faithful-but-trimmed take on Cyberpunk 2077's hacking minigame: pick codes from a
-// matrix, alternating row -> column -> row, to build a buffer that contains each target
-// sequence as a contiguous run. Board generation guarantees the puzzle is always solvable.
+// Faithful to the TOPY.OS design: a 6x6 code matrix, a single 4-code daemon, and a
+// 9-slot buffer. Picks alternate row -> column -> row; a pick locks the next axis to the
+// cell you chose. You win when your buffer ENDS with the full daemon. Board generation
+// walks a legal path first and reads the daemon off it, so every matrix is solvable.
 
 export type Code = string; // two-hex-digit token, e.g. '1C'
 export type Cell = { r: number; c: number };
+export type Axis = 'row' | 'col';
 
-export const CODES: Code[] = ['1C', '55', 'BD', 'E9', '7A', 'FF'];
+export const CODES: Code[] = ['1C', '55', 'BD', 'E9', '7A', 'FF', 'A1', '2D'];
+
+export const keyOf = (c: Cell): string => `${c.r},${c.c}`;
 
 export interface Board {
   grid: Code[][]; // grid[r][c]
-  sequences: Code[][]; // target sequences (daemons)
-  solutionPath: Cell[]; // one guaranteed-winning pick order
+  target: Code[]; // the daemon to intercept
+  solutionPath: Cell[]; // one guaranteed-winning pick order (length === target.length)
 }
 
 export interface GenerateOptions {
-  size?: number; // grid is size x size (default 5)
-  bufferSize?: number; // max picks (default 7)
-  seqLengths?: number[]; // length of each target sequence (default [2, 3, 3])
+  size?: number; // grid is size x size (default 6)
+  daemonLen?: number; // daemon length (default 4)
   rng?: () => number; // injectable RNG for deterministic tests (default Math.random)
 }
 
@@ -36,103 +39,88 @@ export function makeRng(seed: number): () => number {
 const pick = <T>(arr: T[], rng: () => number): T => arr[Math.floor(rng() * arr.length)];
 
 /**
- * Cells the player may legally pick next, given the picks made so far.
- * - No picks yet: anywhere in the top row (row 0).
- * - Odd number of picks: locked to the last pick's COLUMN.
- * - Even number of picks (>0): locked to the last pick's ROW.
- * Already-used cells are always excluded.
+ * Cells legally pickable on the currently locked line, excluding used cells.
+ * - axis 'row': any cell in row `lockIndex`.
+ * - axis 'col': any cell in column `lockIndex`.
  */
-export function legalCells(size: number, picks: Cell[]): Cell[] {
-  const used = new Set(picks.map((p) => `${p.r},${p.c}`));
-  const free = (cells: Cell[]) => cells.filter((c) => !used.has(`${c.r},${c.c}`));
-
-  if (picks.length === 0) {
-    return free(Array.from({ length: size }, (_, c) => ({ r: 0, c })));
+export function legalCells(size: number, axis: Axis, lockIndex: number, used: Set<string>): Cell[] {
+  const out: Cell[] = [];
+  if (axis === 'row') {
+    for (let c = 0; c < size; c++) if (!used.has(`${lockIndex},${c}`)) out.push({ r: lockIndex, c });
+  } else {
+    for (let r = 0; r < size; r++) if (!used.has(`${r},${lockIndex}`)) out.push({ r, c: lockIndex });
   }
-  const last = picks[picks.length - 1];
-  if (picks.length % 2 === 1) {
-    // column lock
-    return free(Array.from({ length: size }, (_, r) => ({ r, c: last.c })));
-  }
-  // row lock
-  return free(Array.from({ length: size }, (_, c) => ({ r: last.r, c })));
+  return out;
 }
 
-export function codesAlong(grid: Code[][], path: Cell[]): Code[] {
-  return path.map((c) => grid[c.r][c.c]);
+/** After picking `cell` on `axis`, the next pick locks to the perpendicular line. */
+export function nextLock(axis: Axis, cell: Cell): { axis: Axis; lockIndex: number } {
+  return axis === 'row' ? { axis: 'col', lockIndex: cell.c } : { axis: 'row', lockIndex: cell.r };
 }
 
-const containsRun = (buffer: Code[], seq: Code[]): boolean => {
-  if (seq.length === 0 || seq.length > buffer.length) return false;
-  for (let i = 0; i + seq.length <= buffer.length; i++) {
-    let hit = true;
-    for (let j = 0; j < seq.length; j++) {
-      if (buffer[i + j] !== seq[j]) {
-        hit = false;
-        break;
-      }
-    }
-    if (hit) return true;
-  }
-  return false;
-};
-
-export function evaluateSequences(buffer: Code[], sequences: Code[][]): boolean[] {
-  return sequences.map((s) => containsRun(buffer, s));
-}
-
-export function isComplete(buffer: Code[], sequences: Code[][]): boolean {
-  return evaluateSequences(buffer, sequences).every(Boolean);
-}
-
-export function isFailed(buffer: Code[], sequences: Code[][], bufferSize: number): boolean {
-  return buffer.length >= bufferSize && !isComplete(buffer, sequences);
-}
-
-/** A random legal walk of `bufferSize` cells, or null if it dead-ends. */
-function walk(size: number, bufferSize: number, rng: () => number): Cell[] | null {
+/** A legal alternating walk of up to `len` cells, starting free in row 0. */
+export function genPath(size: number, len: number, rng: () => number): Cell[] {
   const path: Cell[] = [];
-  for (let i = 0; i < bufferSize; i++) {
-    const legal = legalCells(size, path);
-    if (legal.length === 0) return null;
-    path.push(pick(legal, rng));
+  const used = new Set<string>();
+  let axis: Axis = 'row';
+  let lockIndex = 0;
+  for (let i = 0; i < len; i++) {
+    const cands = legalCells(size, axis, lockIndex, used);
+    if (!cands.length) break;
+    const p = pick(cands, rng);
+    used.add(keyOf(p));
+    path.push(p);
+    ({ axis, lockIndex } = nextLock(axis, p));
   }
   return path;
 }
 
+/**
+ * Longest suffix of `buffer` that is a prefix of `target`. Win is `progress === target.length`
+ * (the daemon sits at the tail of the buffer). A wrong pick breaks the suffix and drops it.
+ */
+export function progress(buffer: Code[], target: Code[]): number {
+  const max = Math.min(target.length, buffer.length);
+  for (let k = max; k >= 1; k--) {
+    let ok = true;
+    for (let j = 0; j < k; j++) {
+      if (buffer[buffer.length - k + j] !== target[j]) {
+        ok = false;
+        break;
+      }
+    }
+    if (ok) return k;
+  }
+  return 0;
+}
+
+export function isWin(buffer: Code[], target: Code[]): boolean {
+  return target.length > 0 && progress(buffer, target) >= target.length;
+}
+
+export function isFail(buffer: Code[], bufferSize: number, target: Code[]): boolean {
+  return buffer.length >= bufferSize && !isWin(buffer, target);
+}
+
 export function generateBoard(opts: GenerateOptions = {}): Board {
-  const size = opts.size ?? 5;
-  const bufferSize = opts.bufferSize ?? 7;
-  const seqLengths = opts.seqLengths ?? [2, 3, 3];
+  const size = opts.size ?? 6;
+  const daemonLen = opts.daemonLen ?? 4;
   const rng = opts.rng ?? Math.random;
+  const pathLen = daemonLen + 3; // extra slack so the walk rarely dead-ends short
 
-  const maxSeq = Math.max(...seqLengths);
-  if (maxSeq > bufferSize) {
-    throw new Error(`sequence length ${maxSeq} exceeds buffer size ${bufferSize}`);
-  }
-  if (bufferSize > size * size) {
-    throw new Error(`buffer size ${bufferSize} exceeds grid capacity ${size * size}`);
-  }
+  let grid: Code[][] = [];
+  let path: Cell[] = [];
+  let tries = 0;
+  do {
+    grid = Array.from({ length: size }, () =>
+      Array.from({ length: size }, () => pick(CODES, rng)),
+    );
+    path = genPath(size, pathLen, rng);
+    tries++;
+  } while (path.length < daemonLen && tries < 60);
+  if (path.length < daemonLen) throw new Error('could not generate a solvable board');
 
-  // 1) Find a legal solution walk (retry on dead-ends; large grid rarely sticks).
-  let path: Cell[] | null = null;
-  for (let attempt = 0; attempt < 100 && !path; attempt++) {
-    path = walk(size, bufferSize, rng);
-  }
-  if (!path) throw new Error('could not generate a solvable board');
-
-  // 2) Random grid; the codes already sitting on the walk become the master string.
-  const grid: Code[][] = Array.from({ length: size }, () =>
-    Array.from({ length: size }, () => pick(CODES, rng)),
-  );
-  const master = codesAlong(grid, path);
-
-  // 3) Each target is a contiguous window of the master string -> all solvable by the
-  //    single walk. Windows may overlap, mirroring multi-daemon buffers in CP2077.
-  const sequences = seqLengths.map((len) => {
-    const start = Math.floor(rng() * (master.length - len + 1));
-    return master.slice(start, start + len);
-  });
-
-  return { grid, sequences, solutionPath: path };
+  const solutionPath = path.slice(0, daemonLen);
+  const target = solutionPath.map((p) => grid[p.r][p.c]);
+  return { grid, target, solutionPath };
 }

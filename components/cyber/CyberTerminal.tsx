@@ -49,7 +49,7 @@ function terminalData() {
     c('  stack', CY) + '           tech stack',
     c('  ledger', CY) + '          work history',
     c('  resume', CY) + '          download the CV',
-    c('  breach', CY) + ' / ' + c('hack', CY) + '    play Breach Protocol',
+    c('  breach', CY) + ' / ' + c('hack', CY) + '    launch the breach minigame',
     c('  hire', CY) + ' / ' + c('contact', CY) + '   start a conversation',
     c('  social', CY) + '          links',
     c('  clear', CY) + '           clear screen',
@@ -82,10 +82,10 @@ function terminalExec(name: string, args: string[], d: ReturnType<typeof termina
     case 'contact': return { out: d.contact, openId: 'contact' };
     case 'hire': return { out: d.hire, openId: 'contact' };
     case 'resume': case 'cv': return { out: span('downloading resume.pdf …', G), resume: true };
-    case 'breach': case 'hack': return { out: span('booting BREACH PROTOCOL … jacking in', P), breach: true };
+    case 'breach': case 'hack': case 'play': case 'game': return { out: span('booting breach protocol … ', G) + span('intercept the daemon before the trace locks you out.', '#7c7c98'), openId: 'breach', breach: true };
     case 'open': case 'cd': case 'goto': {
       const t = (args[0] || '').toLowerCase().replace(/[/]/g, '');
-      const map: Record<string, string> = { about: 'about', work: 'work', projects: 'work', ledger: 'ledger', stack: 'stack', terminal: 'terminal', contact: 'contact', top: 'top', home: 'top' };
+      const map: Record<string, string> = { about: 'about', work: 'work', projects: 'work', ledger: 'ledger', stack: 'stack', terminal: 'terminal', breach: 'breach', contact: 'contact', top: 'top', home: 'top' };
       const id = map[t];
       if (!id) return { out: span('open: unknown section. try about/work/ledger/stack/contact', '#ff6b6b') };
       return { out: span('navigating to /' + id + ' …', G), openId: id };
