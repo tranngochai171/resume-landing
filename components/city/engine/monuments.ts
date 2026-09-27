@@ -816,8 +816,8 @@ async function buildDragon(
   slice: Slice,
 ) {
   const Z0 = 40, L = 215;
-  const yF = (ph: number) => 19.5 + 6.5 * Math.sin(ph * Math.PI * 3 + 0.9) * (1 - ph * 0.3),
-    xF = (ph: number) => Math.sin(ph * Math.PI * 2.4) * 7 * Math.min(1, ph * 3);
+  const yF = (ph: number) => 19.5 + 8.5 * Math.sin(ph * Math.PI * 3 + 0.9) * (1 - ph * 0.3),
+    xF = (ph: number) => Math.sin(ph * Math.PI * 2.4) * 9 * Math.min(1, ph * 3);
   const pts = [V(0, 26.4, 47.5), V(0, 25.5, 44.5)];
   for (let k = 0; k <= 90; k++) {
     const ph = k / 90;
@@ -831,7 +831,7 @@ async function buildDragon(
   const U = () => ({ uTime: uni.uTime, fogColor: uni.fogColor, fogDensity: uni.fogDensity, uFire, uHZ });
   // Gold scales (uSc = scale count along / around the body), bump-lit from their height field, cream belly plates.
   const DFS =
-    'uniform float uFire;uniform vec2 uSc;uniform vec3 fogColor;uniform float fogDensity;varying vec3 vW;varying vec3 vN;varying vec2 vUv;void main(){vec3 n=normalize(vN);vec2 q=vUv*uSc;q.y+=.5*mod(floor(q.x),2.);vec2 f=fract(q);vec2 fw=fwidth(q);float far=smoothstep(.3,.75,max(fw.x,fw.y));float dd=length(vec2(f.x*1.1,(f.y-.5)*1.25));float belly=smoothstep(-.2,-.55,n.y);float h=(1.-smoothstep(.5,1.,dd))*(1.-f.x*.5)*(1.-far);float edge=smoothstep(.7,.98,dd)*(1.-far);float hs=fract(sin(dot(floor(q),vec2(12.9898,78.233)))*43758.55);vec3 dp1=dFdx(vW),dp2=dFdy(vW);float h1=dFdx(h),h2=dFdy(h);vec3 r1=cross(dp2,n),r2=cross(n,dp1);float det=dot(dp1,r1);vec3 gr=sign(det)*(h1*r1+h2*r2);vec3 bn=normalize(abs(det)*n-gr*1.4*(1.-belly)+n*1e-6);float band=fract(vUv.x*uSc.x*.55);float crease=smoothstep(0.,.1,band)*smoothstep(1.,.85,band);vec3 gold=mix(vec3(1.,.6,.12),vec3(1.,.4,.07),hs*.6)*(.75+.45*h);vec3 sc=mix(gold,vec3(.28,.09,.02),edge*.85);vec3 bel=vec3(1.,.84,.48)*mix(.5,1.,mix(crease,1.,far));vec3 base=mix(sc,bel,belly);vec3 L=normalize(vec3(.35,1.,.5));float lam=.28+.85*max(0.,dot(bn,L));vec3 vd=normalize(cameraPosition-vW);vec3 hv=normalize(L+vd);float sp=pow(max(0.,dot(bn,hv)),36.)*1.4;float rim=pow(1.-max(0.,dot(n,vd)),3.);vec3 c=base*lam+vec3(1.,.82,.45)*sp*(1.-belly*.6)+vec3(1.,.5,.15)*rim*.6+vec3(1.4,.4,.05)*uFire;' +
+    'uniform float uFire;uniform vec2 uSc;uniform vec3 fogColor;uniform float fogDensity;varying vec3 vW;varying vec3 vN;varying vec2 vUv;void main(){vec3 n=normalize(vN);vec2 q=vUv*uSc;q.y+=.5*mod(floor(q.x),2.);vec2 f=fract(q);vec2 fw=fwidth(q);float far=smoothstep(.3,.75,max(fw.x,fw.y));float dd=length(vec2(f.x*1.1,(f.y-.5)*1.25));float belly=smoothstep(-.2,-.55,n.y);float h=(1.-smoothstep(.5,1.,dd))*(1.-f.x*.5)*(1.-far);float edge=smoothstep(.7,.98,dd)*(1.-far);float hs=fract(sin(dot(floor(q),vec2(12.9898,78.233)))*43758.55);vec3 dp1=dFdx(vW),dp2=dFdy(vW);float h1=dFdx(h),h2=dFdy(h);vec3 r1=cross(dp2,n),r2=cross(n,dp1);float det=dot(dp1,r1);vec3 gr=sign(det)*(h1*r1+h2*r2);vec3 bn=normalize(abs(det)*n-gr*1.4*(1.-belly)+n*1e-6);float band=fract(vUv.x*uSc.x*.55);float crease=smoothstep(0.,.1,band)*smoothstep(1.,.85,band);vec3 gold=mix(vec3(1.,.7,.26),vec3(.9,.55,.18),hs*.5)*(.75+.45*h);vec3 sc=mix(gold,vec3(.3,.15,.04),edge*.9);vec3 bel=vec3(1.05,.86,.52)*mix(.32,1.,mix(crease,1.,far));vec3 base=mix(sc,bel,belly);vec3 L=normalize(vec3(.35,1.,.5));float lam=.28+.85*max(0.,dot(bn,L));vec3 vd=normalize(cameraPosition-vW);vec3 hv=normalize(L+vd);float sp=pow(max(0.,dot(bn,hv)),36.)*1.4;float rim=pow(1.-max(0.,dot(n,vd)),3.);vec3 c=base*lam+vec3(1.,.82,.45)*sp*(1.-belly*.6)+vec3(1.,.78,.4)*rim*.55+vec3(1.4,.4,.05)*uFire;' +
     FOGF +
     'gl_FragColor=vec4(mix(c,fogColor,fg),1.);}';
   const DVS = WOB + 'varying vec3 vW;varying vec3 vN;varying vec2 vUv;void main(){vUv=uv;vec3 w=wob((modelMatrix*vec4(position,1.)).xyz);vW=w;vN=normalize(mat3(modelMatrix)*normal);gl_Position=projectionMatrix*viewMatrix*vec4(w,1.);}';
@@ -843,7 +843,7 @@ async function buildDragon(
     side: DS,
     uniforms: U(),
     vertexShader: WOB + 'varying vec3 vW;varying vec2 vF;void main(){vF=uv;vec3 w=wob((modelMatrix*vec4(position,1.)).xyz);w.y+=sin(uTime*5.+uv.x*90.)*.25*uv.y;w.x+=cos(uTime*4.+uv.x*70.)*.2*uv.y;vW=w;gl_Position=projectionMatrix*viewMatrix*vec4(w,1.);}',
-    fragmentShader: 'uniform float uFire;uniform vec3 fogColor;uniform float fogDensity;varying vec3 vW;varying vec2 vF;void main(){float t=vF.y;float st=.5+.5*sin(vF.x*1400.+t*6.);vec3 c=mix(vec3(1.2,.14,.03),vec3(1.75,1.35,.3),smoothstep(.2,.9,t));c*=.8+.28*st;c+=vec3(.5,.2,0.)*uFire;' + FOGF + 'gl_FragColor=vec4(mix(c,fogColor,fg),1.);}',
+    fragmentShader: 'uniform float uFire;uniform vec3 fogColor;uniform float fogDensity;varying vec3 vW;varying vec2 vF;void main(){float t=vF.y;float st=.5+.5*sin(vF.x*1400.+t*6.);vec3 c=mix(vec3(.85,.48,.13),vec3(1.6,1.28,.68),smoothstep(.1,.9,t));c*=.8+.28*st;c+=vec3(.5,.2,0.)*uFire;' + FOGF + 'gl_FragColor=vec4(mix(c,fogColor,fg),1.);}',
   });
   const wobMat = (r: number, g2: number, b2: number) =>
     new T.ShaderMaterial({
@@ -852,9 +852,9 @@ async function buildDragon(
       vertexShader: WOB + 'varying vec3 vW;void main(){vec3 w=wob((modelMatrix*vec4(position,1.)).xyz);vW=w;gl_Position=projectionMatrix*viewMatrix*vec4(w,1.);}',
       fragmentShader: 'uniform vec3 uCol;uniform vec3 fogColor;uniform float fogDensity;uniform float uFire;varying vec3 vW;void main(){vec3 c=uCol+vec3(.5,.18,0.)*uFire;' + FOGF + 'gl_FragColor=vec4(mix(c,fogColor,fg),1.);}',
     });
-  const spineM = wobMat(1.45, 0.92, 0.24), flameM = wobMat(1.35, 0.3, 0.07), clawM = wobMat(1.5, 1.35, 0.95);
+  const spineM = wobMat(1.5, 1.12, 0.52), flameM = wobMat(1.2, 0.8, 0.3), clawM = wobMat(1.5, 1.35, 0.95);
   const SEG = 420, RAD = 16,
-    R = (u: number) => (u < 0.05 ? 1.6 + (u / 0.05) * 0.8 : u < 0.5 ? 2.4 + 0.15 * Math.sin(u * 50) : 2.4 - Math.pow((u - 0.5) / 0.5, 1.15) * 2.0);
+    R = (u: number) => (u < 0.05 ? 1.5 + (u / 0.05) * 0.5 : u < 0.5 ? 2.0 + 0.1 * Math.sin(u * 50) : 2.0 - Math.pow((u - 0.5) / 0.5, 1.1) * 1.7);
   const tubeG = new T.TubeGeometry(curve, SEG, 1, RAD, false), pa = tubeG.attributes.position, ringP: T.Vector3[] = [];
   for (let r0 = 0; r0 <= SEG; r0++) ringP.push(curve.getPointAt(r0 / SEG));
   for (let k = 0; k < pa.count; k++) {
@@ -915,19 +915,12 @@ async function buildDragon(
     g.add(m);
   };
   // Saw-tooth fin profile: n teeth per unit of u.
-  const tooth = (u: number, n: number) => 0.35 + 0.65 * Math.pow(1 - ((u * n) % 1), 1.6), finH = (u: number) => 3.4 - u * 2.3;
+  const tooth = (u: number, n: number) => 0.2 + 0.8 * Math.pow(1 - ((u * n) % 1), 2.4), finH = (u: number) => 2.8 - u * 1.9;
   ribbon(0.03, 0.985, 1500, (u, fr) => fr.P.clone().addScaledVector(fr.up, R(u) * 0.82), (u, fr, b) => {
-    const h = finH(u) * tooth(u, 85);
+    const h = finH(u) * tooth(u, 105);
     return b.clone().addScaledVector(fr.up, h).addScaledVector(fr.T, h * 0.75);
   });
   await slice();
-  for (const sx of [-1, 1]) {
-    ribbon(0.08, 0.9, 900, (u, fr) => fr.P.clone().addScaledVector(fr.side, sx * R(u) * 0.95).addScaledVector(fr.up, -R(u) * 0.25), (u, fr, b) => {
-      const h = (1.3 - u * 0.8) * tooth(u + 0.3, 48);
-      return b.clone().addScaledVector(fr.side, sx * h * 0.5).addScaledVector(fr.up, -h * 0.35).addScaledVector(fr.T, h * 0.9);
-    });
-    await slice();
-  }
   for (let i = 0; i < 48; i++) {
     const u = 0.035 + (i / 48) * 0.93, fr = frame(u);
     cone(0.6 - u * 0.35, 1.9 - u * 1.2, spineM, fr.P.clone().addScaledVector(fr.up, R(u) * 0.8), fr.up.clone().multiplyScalar(0.8).addScaledVector(fr.T, 0.6), fr.side);
@@ -941,43 +934,70 @@ async function buildDragon(
     const fr = frame(u), r = R(u);
     for (const sx of [-1, 1]) {
       const sd = fr.side.clone().multiplyScalar(sx), fw = fr.T.clone().multiplyScalar(front ? -1 : 0.6);
-      const sh = fr.P.clone().addScaledVector(sd, r * 0.7).addScaledVector(fr.up, -r * 0.35);
-      const el = sh.clone().addScaledVector(sd, 2.4).addScaledVector(fr.up, -3.1).addScaledVector(fw, 2.1);
+      // Shoulder bulge where the leg meets the body.
+      const sh = fr.P.clone().addScaledVector(sd, r * 0.3).addScaledVector(fr.up, -r * 0.2), sb = fr.P.clone().addScaledVector(sd, r * 0.62).addScaledVector(fr.up, -r * 0.42);
+      const bul = new T.Mesh(new T.SphereGeometry(1, 18, 12), HM);
+      bul.position.copy(sb);
+      bul.quaternion.setFromUnitVectors(YV, fr.T);
+      bul.scale.set(r * 0.62, r * 1.05, r * 0.62);
+      g.add(bul);
+      const el = sb.clone().addScaledVector(sd, 1.9).addScaledVector(fr.up, -3.2).addScaledVector(fw, 2.1);
       const wr = el.clone().addScaledVector(sd, 0.3).addScaledVector(fr.up, -3.0).addScaledVector(fw, 2.0);
-      ttube([sh, sh.clone().lerp(el, 0.5).addScaledVector(sd, 0.35).addScaledVector(fr.up, 0.25), el], 1.3, 0.8, BM);
-      ttube([el, el.clone().lerp(wr, 0.5).addScaledVector(fw, -0.2), wr], 0.75, 0.5, BM);
-      const kj = new T.Mesh(new T.SphereGeometry(0.85, 14, 10), BM);
+      ttube([sh, sb, sb.clone().lerp(el, 0.5).addScaledVector(sd, 0.3).addScaledVector(fr.up, 0.2), el], 1.35, 0.95, HM);
+      ttube([el, el.clone().lerp(wr, 0.5).addScaledVector(fw, -0.2), wr], 0.9, 0.6, HM);
+      const kj = new T.Mesh(new T.SphereGeometry(0.98, 14, 10), HM);
       kj.position.copy(el);
       g.add(kj);
       for (let k = 0; k < 3; k++) cone(0.36, 2.6 - k * 0.4, flameM, el, fr.T.clone().multiplyScalar(front ? 1 : 0.4).addScaledVector(fr.up, 0.35 + k * 0.3).addScaledVector(sd, 0.3), sd);
-      const hand = new T.Mesh(new T.SphereGeometry(0.7, 14, 10), BM);
-      hand.position.copy(wr);
-      hand.scale.set(1.2, 0.75, 1.2);
-      g.add(hand);
-      for (let k = 0; k < 5; k++) {
-        const d = fr.up.clone().multiplyScalar(-0.55).addScaledVector(fr.T, front ? -0.75 : 0.45).addScaledVector(sd, (k - 2) * 0.45).normalize();
-        const a = wr.clone().addScaledVector(d, 0.45), b = wr.clone().addScaledVector(d, 1.5), c = b.clone().addScaledVector(d, 0.8).addScaledVector(fr.up, -1.0);
-        ttube([a, b, c], 0.26, 0.02, clawM);
+      // Foot: wrist, palm, four jointed toes forward and a dewclaw behind, each ending in a hooked claw.
+      const dn = fr.up.clone().negate(), ff = fr.T.clone().multiplyScalar(front ? -1 : 1), pc = wr.clone().addScaledVector(dn, 0.55).addScaledVector(ff, 0.45);
+      ttube([wr, wr.clone().lerp(pc, 0.5).addScaledVector(ff, -0.05), pc], 0.62, 0.52, HM);
+      const palm = new T.Mesh(new T.SphereGeometry(0.62, 16, 12), HM);
+      palm.position.copy(pc);
+      palm.scale.set(1.15, 0.8, 1.15);
+      g.add(palm);
+      const dir0 = ff.clone().addScaledVector(sd, 0.35).normalize(), lat = new T.Vector3().crossVectors(dn, dir0).normalize();
+      const toe = (dir: T.Vector3, L1: number, L2: number, rr: number, tl: number) => {
+        const b0 = pc.clone().addScaledVector(dir, 0.35), k1 = b0.clone().addScaledVector(dir, L1).addScaledVector(dn, 0.05), k2 = k1.clone().addScaledVector(dir, L2).addScaledVector(dn, 0.4);
+        ttube([b0, b0.clone().lerp(k1, 0.5).addScaledVector(dn, -0.12), k1], rr, rr * 0.8, HM);
+        const kn = new T.Mesh(new T.SphereGeometry(rr * 0.85, 10, 8), HM);
+        kn.position.copy(k1);
+        g.add(kn);
+        ttube([k1, k1.clone().lerp(k2, 0.5).addScaledVector(dn, -0.08), k2], rr * 0.78, rr * 0.62, HM);
+        const kn2 = new T.Mesh(new T.SphereGeometry(rr * 0.66, 10, 8), HM);
+        kn2.position.copy(k2);
+        g.add(kn2);
+        ttube([k2, k2.clone().addScaledVector(dir, tl * 0.55).addScaledVector(dn, tl * 0.1), k2.clone().addScaledVector(dir, tl * 0.8).addScaledVector(dn, tl * 0.55), k2.clone().addScaledVector(dir, tl * 0.65).addScaledVector(dn, tl)], rr * 0.62, 0.012, clawM);
+      };
+      for (let k = 0; k < 4; k++) {
+        const an = (k - 1.5) * 0.42;
+        toe(dir0.clone().multiplyScalar(Math.cos(an)).addScaledVector(lat, Math.sin(an)).addScaledVector(dn, 0.15).normalize(), 1.05 - Math.abs(k - 1.5) * 0.12, 0.85, 0.3, 1.25);
       }
+      toe(ff.clone().negate().addScaledVector(sd, 0.4).addScaledVector(dn, 0.3).normalize(), 0.5, 0.45, 0.24, 0.9);
+      for (let k = 0; k < 3; k++) cone(0.3, 1.9 - k * 0.35, flameM, wr, ff.clone().multiplyScalar(-0.9).addScaledVector(fr.up, 0.45 + k * 0.25).addScaledVector(sd, 0.2 + k * 0.15), sd);
     }
   };
   await slice();
   legAt(0.13, true);
   legAt(0.5, false);
   await slice();
-  const tf = frame(1);
-  for (let k = 0; k < 9; k++) {
-    const an = -1 + (k / 8) * 2;
-    cone(0.55, 5.4 - Math.abs(an) * 2, k % 2 ? spineM : flameM, tf.P, tf.T.clone().multiplyScalar(Math.cos(an)).addScaledVector(tf.up, Math.sin(an)), tf.side);
+  // Tail plume: 11 wavy locks fanning out of the tip.
+  const tf = frame(0.975);
+  for (let k = 0; k < 11; k++) {
+    const an = -1.15 + (k / 10) * 2.3,
+      dir = tf.T.clone().multiplyScalar(Math.cos(an)).addScaledVector(tf.up, Math.sin(an)),
+      pr = tf.up.clone().multiplyScalar(-Math.sin(an)).addScaledVector(tf.side, ((k % 3) - 1) * 0.6),
+      L = 8.5 - Math.abs(an) * 3 + (k % 2) * 1.2;
+    ttube([tf.P, tf.P.clone().addScaledVector(dir, L * 0.35).addScaledVector(pr, 0.4), tf.P.clone().addScaledVector(dir, L * 0.7).addScaledVector(pr, -0.5), tf.P.clone().addScaledVector(dir, L).addScaledVector(pr, 0.9)], 0.62 - Math.abs(an) * 0.15, 0.02, k % 2 ? spineM : flameM);
   }
   const hornM = new T.MeshBasicMaterial({ color: new T.Color(1.35, 1.15, 0.75) }),
     whiskM = new T.MeshBasicMaterial({ color: new T.Color(1.5, 1.05, 0.35) }),
-    eyeM = new T.MeshBasicMaterial({ color: new T.Color(0.3, 2.0, 2.4) }),
+    eyeM = new T.MeshBasicMaterial({ color: new T.Color(2.4, 1.3, 0.25) }),
     inkM = new T.MeshBasicMaterial({ color: 0x0a0608 }),
     toothM = new T.MeshBasicMaterial({ color: new T.Color(1.15, 1.1, 0.95) }),
     mouthM = new T.MeshBasicMaterial({ color: new T.Color(0.9, 0.12, 0.06), side: DS }),
-    flameB = new T.MeshBasicMaterial({ color: new T.Color(1.35, 0.3, 0.07), side: DS }),
-    maneY = new T.MeshBasicMaterial({ color: new T.Color(1.65, 1.2, 0.28), side: DS });
+    flameB = new T.MeshBasicMaterial({ color: new T.Color(1.2, 0.8, 0.3), side: DS }),
+    maneY = new T.MeshBasicMaterial({ color: new T.Color(1.6, 1.3, 0.7), side: DS });
   const hd = new T.Group();
   g.add(hd);
   const P0 = curve.getPointAt(0), fwd = curve.getTangentAt(0).negate();
@@ -1006,9 +1026,8 @@ async function buildDragon(
     ttube([V(sx * 0.55, 1.35, 0.1), V(sx * 1.0, 2.5, -1.6), V(sx * 1.3, 3.3, -3.6), V(sx * 1.2, 4.6, -5.8)], 0.36, 0.06, hornM, hd);
     ttube([V(sx * 1.05, 2.7, -2.0), V(sx * 1.7, 3.7, -2.2), V(sx * 2.0, 4.6, -3.1)], 0.18, 0.04, hornM, hd);
     ttube([V(sx * 1.25, 3.2, -3.4), V(sx * 1.9, 4.2, -3.9), V(sx * 2.1, 5.0, -4.9)], 0.15, 0.03, hornM, hd);
-    ttube([V(sx * 0.7, 0.7, 4.9), V(sx * 1.6, 1.8, 4.4), V(sx * 2.6, 2.4, 2.4), V(sx * 3.2, 1.8, -0.6)], 0.08, 0.02, whiskM, hd);
     cone(0.16, 1.4, toothM, V(sx * 0.62, -0.2, 5.0), V(0, -1, 0.05), null, hd);
-    ttube([V(sx * 1.0, 0.25, 4.7), V(sx * 2.4, 0.55, 4.8), V(sx * 3.6, -0.3, 3.0), V(sx * 4.8, -1.6, 0.2), V(sx * 5.6, -3.6, -3.5), V(sx * 5.2, -5.4, -6.5)], 0.13, 0.02, whiskM, hd);
+    ttube([V(sx * 1.0, 0.25, 4.7), V(sx * 2.4, 0.55, 4.8), V(sx * 3.6, -0.3, 3.0), V(sx * 4.8, -1.6, 0.2), V(sx * 5.6, -3.6, -3.5), V(sx * 5.4, -5.6, -7), V(sx * 6.8, -5.2, -10.5), V(sx * 8.2, -3.4, -13)], 0.1, 0.015, whiskM, hd);
     cone(0.3, 1.9, flameB, V(sx * 0.95, 1.4, 1.1), V(sx * 0.4, 0.9, -0.8), V(1, 0, 0), hd);
     for (let z = 3.3; z <= 5.1; z += 0.45) cone(0.1, z > 4.8 ? 0.8 : 0.45, toothM, V(sx * 0.78, -0.25, z), V(0, -1, 0.1), null, hd);
   }
