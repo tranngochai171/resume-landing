@@ -55,13 +55,13 @@ const condensed = Space_Grotesk({
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://topy-tran.vercel.app'),
-  title: 'Tran Ngoc Hai — Senior Fullstack Developer',
+  title: 'Tran Ngoc Hai | Senior Fullstack Developer',
   description:
-    'Senior Fullstack Developer shipping production apps in FinTech, HealthTech, SaaS, and eCommerce — from SEC-regulated investment platforms to AI-powered recruitment tools.',
+    'Senior Fullstack Developer shipping production apps in FinTech, HealthTech, SaaS, and eCommerce - from SEC-regulated investment platforms to AI-powered recruitment tools.',
   authors: [{ name: 'Tran Ngoc Hai', url: 'https://topy-tran.vercel.app' }],
   keywords: ['Tran Ngoc Hai', 'Topy Tran', 'Senior Fullstack Developer', 'React', 'Next.js', 'Node.js', 'Flutter', 'Ruby on Rails', 'FinTech', 'HealthTech', 'Ho Chi Minh City'],
   openGraph: {
-    title: 'Tran Ngoc Hai — Senior Fullstack Developer',
+    title: 'Tran Ngoc Hai | Senior Fullstack Developer',
     description:
       `Senior Fullstack Developer · ${getYearsOfExperience()}+ years · FinTech · HealthTech · SaaS`,
     url: 'https://topy-tran.vercel.app',

@@ -2,16 +2,22 @@ import type { Metadata } from 'next';
 import { CyberHome } from '@/components/cyber/CyberHome';
 
 export const metadata: Metadata = {
-  title: 'TOPY.OS — Tran Ngoc Hai // Cyberpunk Portfolio',
+  title: 'TOPY.OS | Tran Ngoc Hai // Cyberpunk Portfolio',
   description:
-    'Neon-noir cyberpunk portfolio of Tran Ngoc Hai (Topy) — Senior Fullstack Developer shipping production apps in FinTech, HealthTech, SaaS, and eCommerce.',
+    'Neon-noir cyberpunk portfolio of Tran Ngoc Hai (Topy) - Senior Fullstack Developer shipping production apps in FinTech, HealthTech, SaaS, and eCommerce.',
   // `/` is now the 3D Neon City, so /os is its own page (the 2D TOPY.OS).
   alternates: { canonical: '/os' },
   openGraph: {
-    title: 'TOPY.OS — Tran Ngoc Hai // Cyberpunk Portfolio',
-    description: 'Neon-noir cyberpunk portfolio — Senior Fullstack Developer · FinTech · HealthTech · SaaS · eCommerce.',
+    title: 'TOPY.OS | Tran Ngoc Hai // Cyberpunk Portfolio',
+    description: 'Neon-noir cyberpunk portfolio · Senior Fullstack Developer · FinTech · HealthTech · SaaS · eCommerce.',
     url: 'https://topy-tran.vercel.app/os',
     type: 'website',
+    images: ['/og-image.jpg'],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'TOPY.OS | Tran Ngoc Hai // Cyberpunk Portfolio',
+    description: 'Neon-noir cyberpunk portfolio · Senior Fullstack Developer · FinTech · HealthTech · SaaS · eCommerce.',
     images: ['/og-image.jpg'],
   },
 };
