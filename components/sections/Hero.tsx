@@ -1,11 +1,17 @@
 'use client';
+/// <reference types="react-dom/canary" />
 
 import { useRef, useCallback } from 'react';
+import { preload } from 'react-dom';
 import { ScrollVideo } from '@/components/motion/ScrollVideo';
 import { HeroReveal } from '@/components/motion/HeroReveal';
 import { useSectionView } from '@/hooks/useSectionView';
 
+const POSTER = '/images/01-closed.webp';
+
 export function Hero() {
+  // The poster is the LCP element: fetch it first, from the document head.
+  preload(POSTER, { as: 'image', fetchPriority: 'high' });
   const progressRef = useRef(0);
   const sectionRef = useRef<HTMLElement>(null);
   useSectionView('hero', sectionRef);
@@ -23,7 +29,7 @@ export function Hero() {
       <div className="relative flex min-h-screen items-center justify-center">
         <ScrollVideo
           src="/videos/macbook-scroll.mp4"
-          poster="/images/01-closed.webp"
+          poster={POSTER}
           className="relative z-0 h-[60vh] w-full max-w-[1200px]"
           onProgress={onProgress}
         />
