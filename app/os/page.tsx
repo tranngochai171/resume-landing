@@ -5,8 +5,8 @@ export const metadata: Metadata = {
   title: 'TOPY.OS — Tran Ngoc Hai // Cyberpunk Portfolio',
   description:
     'Neon-noir cyberpunk portfolio of Tran Ngoc Hai (Topy) — Senior Fullstack Developer shipping production apps in FinTech, HealthTech, SaaS, and eCommerce.',
-  // /os is the same content as the default `/` — canonical points there to avoid duplicate-content.
-  alternates: { canonical: '/' },
+  // `/` is now the 3D Neon City, so /os is its own page (the 2D TOPY.OS).
+  alternates: { canonical: '/os' },
   openGraph: {
     title: 'TOPY.OS — Tran Ngoc Hai // Cyberpunk Portfolio',
     description: 'Neon-noir cyberpunk portfolio — Senior Fullstack Developer · FinTech · HealthTech · SaaS · eCommerce.',

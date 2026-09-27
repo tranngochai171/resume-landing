@@ -2,9 +2,10 @@ import type { Metadata } from 'next';
 import { getSiteVariant } from '@/lib/siteVariant';
 import { ElegantHome } from '@/components/home/ElegantHome';
 import { CyberHome } from '@/components/cyber/CyberHome';
+import { CityHome } from '@/components/city/CityHome';
 
-// Metadata reflects the default variant (cyber). If NEXT_PUBLIC_SITE_VARIANT=elegant,
-// adjust the title/description here to match.
+// Metadata reflects the default variant (the TOPY.OS Neon City, with TOPY.OS 2D as its fallback).
+// If NEXT_PUBLIC_SITE_VARIANT=elegant, adjust the title/description here to match.
 export const metadata: Metadata = {
   title: 'TOPY.OS — Tran Ngoc Hai · Senior Fullstack Developer',
   description:
@@ -19,8 +20,11 @@ export const metadata: Metadata = {
   },
 };
 
-// `/` serves whichever variant the NEXT_PUBLIC_SITE_VARIANT flag selects.
-// Both are always reachable directly at /elegant and /os.
+// `/` serves whichever variant the NEXT_PUBLIC_SITE_VARIANT flag selects (city by default).
+// The 2D versions are always reachable directly at /elegant and /os.
 export default function HomePage() {
-  return getSiteVariant() === 'cyber' ? <CyberHome /> : <ElegantHome />;
+  const variant = getSiteVariant();
+  if (variant === 'elegant') return <ElegantHome />;
+  if (variant === 'cyber') return <CyberHome />;
+  return <CityHome />;
 }

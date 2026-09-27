@@ -12,19 +12,19 @@ test.describe('Resume landing — smoke', () => {
       }
     });
 
-    await page.goto('/');
+    await page.goto('/elegant/');
     await page.waitForLoadState('networkidle');
 
     expect(errors).toEqual([]);
   });
 
   test('hero name renders', async ({ page }) => {
-    await page.goto('/');
+    await page.goto('/elegant/');
     await expect(page.locator('[data-beat="intro"]')).toContainText(/TRAN NGOC HAI/i);
   });
 
   test('all section anchors exist', async ({ page }) => {
-    await page.goto('/');
+    await page.goto('/elegant/');
     for (const id of ['hero', 'about', 'work', 'timeline', 'skills', 'contact']) {
       await expect(page.locator(`#${id}`)).toBeAttached();
     }
@@ -33,13 +33,13 @@ test.describe('Resume landing — smoke', () => {
   test('top nav exposes Ledger link to #timeline', async ({ page }, testInfo) => {
     // Ledger link lives in the desktop-only nav (hidden md:flex); skip on mobile.
     if (testInfo.project.name === 'mobile') test.skip();
-    await page.goto('/');
+    await page.goto('/elegant/');
     const link = page.getByRole('link', { name: /^Ledger$/i });
     await expect(link).toHaveAttribute('href', '#timeline');
   });
 
   test('mailto + social + PDF links wired', async ({ page }) => {
-    await page.goto('/');
+    await page.goto('/elegant/');
     await expect(page.locator('a[href="mailto:tranngochai171@gmail.com"]')).toBeVisible();
     await expect(page.getByRole('link', { name: /LinkedIn/i })).toHaveAttribute(
       'href',
@@ -58,7 +58,7 @@ test.describe('Resume landing — smoke', () => {
   test('reduced-motion: hero video stays paused on load', async ({ browser }) => {
     const context = await browser.newContext({ reducedMotion: 'reduce' });
     const page = await context.newPage();
-    await page.goto('/');
+    await page.goto('/elegant/');
     await page.waitForLoadState('networkidle');
     const paused = await page.locator('video').first().evaluate((v: HTMLVideoElement) => v.paused);
     expect(paused).toBe(true);
@@ -66,7 +66,7 @@ test.describe('Resume landing — smoke', () => {
   });
 
   test('hero beats render at initial scroll (intro visible)', async ({ page }) => {
-    await page.goto('/');
+    await page.goto('/elegant/');
     await page.waitForLoadState('networkidle');
     const intro = page.locator('[data-beat="intro"]');
     await expect(intro).toHaveText(/TRAN NGOC HAI/);
@@ -75,7 +75,7 @@ test.describe('Resume landing — smoke', () => {
   test('reduced-motion: portfolio + invitation beats present', async ({ browser }) => {
     const context = await browser.newContext({ reducedMotion: 'reduce' });
     const page = await context.newPage();
-    await page.goto('/');
+    await page.goto('/elegant/');
     await page.waitForLoadState('networkidle');
     await expect(page.locator('[data-beat="portfolio"]')).toContainText(/Dalmore/);
     await expect(page.locator('[data-beat="invitation"]')).toContainText(/See the work/i);
@@ -83,7 +83,7 @@ test.describe('Resume landing — smoke', () => {
   });
 
   test('about portrait renders with correct alt and dimensions', async ({ page }) => {
-    await page.goto('/');
+    await page.goto('/elegant/');
     await page.waitForLoadState('networkidle');
     const portrait = page.locator('#about img[alt="Topy Tran"]');
     await expect(portrait).toBeVisible();
@@ -93,7 +93,7 @@ test.describe('Resume landing — smoke', () => {
   });
 
   test('about portrait has AVIF and WebP sources', async ({ page }) => {
-    await page.goto('/');
+    await page.goto('/elegant/');
     const sources = page.locator('#about picture source');
     const count = await sources.count();
     expect(count).toBeGreaterThanOrEqual(4);
@@ -107,7 +107,7 @@ test.describe('Resume landing — smoke', () => {
   test('reduced-motion: portrait renders without grayscale filter', async ({ browser }) => {
     const context = await browser.newContext({ reducedMotion: 'reduce' });
     const page = await context.newPage();
-    await page.goto('/');
+    await page.goto('/elegant/');
     await page.waitForLoadState('networkidle');
     const wrapper = page.locator('[data-scroll-desaturate]').first();
     await expect(wrapper).toBeVisible();
@@ -127,7 +127,7 @@ test.describe('Resume landing — smoke', () => {
         (window as unknown as { __va: unknown[][] }).__va.push(args);
       };
     });
-    await page.goto('/');
+    await page.goto('/elegant/');
     await page.waitForLoadState('networkidle');
 
     const pdf = page.getByRole('link', { name: /Download Resume/i });
@@ -154,7 +154,7 @@ test.describe('Resume landing — smoke', () => {
         (window as unknown as { __va: unknown[][] }).__va.push(args);
       };
     });
-    await page.goto('/');
+    await page.goto('/elegant/');
     await page.waitForLoadState('networkidle');
 
     const gh = page.getByRole('link', { name: /GitHub/i });
@@ -177,7 +177,7 @@ test.describe('Resume landing — smoke', () => {
   test('mobile drawer opens and shows links', async ({ browser }) => {
     const ctx = await browser.newContext({ viewport: { width: 390, height: 844 } });
     const page = await ctx.newPage();
-    await page.goto('/');
+    await page.goto('/elegant/');
     await page.waitForLoadState('networkidle');
 
     const trigger = page.getByRole('button', { name: /open menu/i });
@@ -193,7 +193,7 @@ test.describe('Resume landing — smoke', () => {
   });
 
   test('footer renders with copyright, colophon, back-to-top', async ({ page }) => {
-    await page.goto('/');
+    await page.goto('/elegant/');
     await page.waitForLoadState('networkidle');
     const footer = page.locator('footer');
     await expect(footer).toBeVisible();
@@ -213,7 +213,7 @@ test.describe('Resume landing — smoke', () => {
         (window as unknown as { __va: unknown[][] }).__va.push(args);
       };
     });
-    await page.goto('/');
+    await page.goto('/elegant/');
     await page.waitForLoadState('networkidle');
 
     await page.locator('#about').scrollIntoViewIfNeeded();
