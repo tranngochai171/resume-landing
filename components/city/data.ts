@@ -53,7 +53,6 @@ export type CityState = {
   hold: boolean;
   cruise: boolean;
   hints: boolean;
-  copied: boolean;
   sfx: boolean;
   eng: boolean;
   rain: boolean;
@@ -73,7 +72,6 @@ export const INITIAL_STATE: CityState = {
   hold: false,
   cruise: false,
   hints: true,
-  copied: false,
   sfx: true,
   eng: false,
   rain: false,
