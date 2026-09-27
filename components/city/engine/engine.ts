@@ -72,6 +72,7 @@ export class Engine {
   private prMax = 1;
   private perf = { acc: 0, n: 0, cool: 2 };
   private dead = false;
+  private failed = false;
   private raf = 0;
   private last = 0;
   private t0 = 0;
@@ -146,7 +147,7 @@ export class Engine {
       if (document.hidden) {
         cancelAnimationFrame(this.raf);
         this.raf = 0;
-      } else if (!this.raf && this.renderer && !this.dead) {
+      } else if (!this.raf && this.renderer && !this.dead && !this.failed) {
         this.last = performance.now();
         this.raf = requestAnimationFrame(this.loop);
       }
@@ -182,9 +183,7 @@ export class Engine {
       removeEventListener('pointerdown', pd);
       document.removeEventListener('visibilitychange', vis);
     };
-    this.init().catch((err) => {
-      if (!this.dead) this.cb.onFallback(err);
-    });
+    this.init().catch((err) => this.fail(err));
   }
 
   private async init() {
@@ -307,7 +306,7 @@ export class Engine {
 
   private onLost = (e: Event) => {
     e.preventDefault();
-    if (!this.dead) this.cb.onFallback(new Error('WebGL context lost'));
+    this.fail(new Error('WebGL context lost'));
   };
 
   private onKey(e: KeyboardEvent, down: boolean) {
@@ -338,9 +337,28 @@ export class Engine {
     if (k === 'escape') this.close();
   }
 
+  /** Stop rendering and hand over to the 2D page, exactly once (init error, frame error, lost context). */
+  private fail(err: unknown) {
+    cancelAnimationFrame(this.raf);
+    this.raf = 0;
+    if (this.dead || this.failed) return;
+    this.failed = true;
+    this.cb.onFallback(err);
+  }
+
+  // A throwing frame would otherwise repeat every frame and freeze the scene (possibly on the loader).
   private loop = () => {
-    if (this.dead) return;
+    if (this.dead || this.failed) return;
+    try {
+      this.frame();
+    } catch (err) {
+      this.fail(err);
+      return;
+    }
     this.raf = requestAnimationFrame(this.loop);
+  };
+
+  private frame() {
     const now = performance.now();
     const dt = Math.min((now - this.last) / 1000, 0.05), t = (now - this.t0) / 1000;
     this.last = now;
@@ -380,7 +398,7 @@ export class Engine {
         }
       }
     }
-  };
+  }
 
   private resize() {
     if (!this.renderer) return;

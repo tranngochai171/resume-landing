@@ -81,6 +81,71 @@ test.describe('Neon City (3D)', () => {
   });
 });
 
+async function expect2D(page: Page) {
+  await expect(page.locator('#breach')).toBeVisible({ timeout: 60_000 });
+  await expect(page.locator('.city')).toHaveCount(0); // city overlay gone
+  // Scroll works again (the 2D page's own boot loader locks it briefly).
+  await expect
+    .poll(() => page.evaluate(() => (window.scrollTo(0, 600), window.scrollY)), { timeout: 30_000 })
+    .toBeGreaterThan(0);
+}
+
+/** Collects the city's "falling back to 2D" warnings: one per onFallback call. */
+function trackFallbacks(page: Page) {
+  const calls: string[] = [];
+  page.on('console', (msg) => {
+    if (msg.text().includes('[city] falling back')) calls.push(msg.text());
+  });
+  return calls;
+}
+
+test.describe('Neon City hands over to 2D at runtime', () => {
+  test.setTimeout(180_000);
+
+  test('a throwing frame stops the loop and falls back exactly once', async ({ page }) => {
+    const fallbacks = trackFallbacks(page);
+    await page.goto(CITY);
+    await page.getByRole('button', { name: /SKIP/ }).waitFor({ timeout: 60_000 });
+    // Every loader frame reads the percent readout; make that throw on every call.
+    await page.evaluate(() => {
+      const proto = Element.prototype as unknown as { querySelector: (s: string) => Element | null };
+      const orig = proto.querySelector;
+      proto.querySelector = function (this: Element, s: string) {
+        if (s.includes('ld-pct')) throw new Error('forced frame error');
+        return orig.call(this, s);
+      };
+    });
+    await expect2D(page);
+    await page.waitForTimeout(1000);
+    expect(fallbacks).toHaveLength(1);
+    expect(fallbacks[0]).toContain('forced frame error');
+  });
+
+  test('a lost WebGL context falls back', async ({ page }) => {
+    const fallbacks = trackFallbacks(page);
+    await page.goto(CITY);
+    await page.getByRole('button', { name: /SKIP/ }).waitFor({ timeout: 60_000 });
+    await page.evaluate(() => {
+      const canvas = document.querySelector('.city canvas') as HTMLCanvasElement;
+      canvas.getContext('webgl2')?.getExtension('WEBGL_lose_context')?.loseContext();
+    });
+    await expect2D(page);
+    expect(fallbacks).toHaveLength(1);
+  });
+
+  test('an engine chunk that fails to load falls back', async ({ page }) => {
+    // Chunk names differ between dev and production builds, so abort whichever chunk holds the engine.
+    await page.route('**/_next/static/chunks/**', async (route) => {
+      const res = await route.fetch();
+      const body = await res.text();
+      if (body.includes('UnrealBloomPass')) return route.abort();
+      return route.fulfill({ response: res, body });
+    });
+    await page.goto(CITY);
+    await expect2D(page);
+  });
+});
+
 test.describe('2D fallback', () => {
   test('reduced motion renders TOPY.OS 2D', async ({ browser }) => {
     const context = await browser.newContext({ reducedMotion: 'reduce' });
