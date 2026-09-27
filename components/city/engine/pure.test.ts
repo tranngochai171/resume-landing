@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { deadzone, gearOf, introLogCount, introPct, introStatus, kmh, mkRng, railTop, rpmOf, sectorAt } from './pure';
+import { deadzone, gearOf, introLogCount, introPct, introStatus, kmh, laneLimit, mkRng, railTop, rpmOf, sectorAt } from './pure';
 
 // The design's RNG, verbatim from the prototype: the city must be generated from the exact same sequence.
 // prettier-ignore
@@ -102,5 +102,17 @@ describe('railTop', () => {
     expect(railTop(-2450)).toBe(100);
     expect(railTop(-2700)).toBe(100);
     expect(railTop(-1150)).toBe(50);
+  });
+});
+
+describe('laneLimit', () => {
+  it('narrows the road to the centre arch of the first gate, and not in the air', () => {
+    expect(laneLimit(false, 100)).toBe(9.3);
+    expect(laneLimit(false, 45)).toBe(9.3);
+    expect(laneLimit(false, 26)).toBeCloseTo(7.35);
+    expect(laneLimit(false, 7)).toBe(5.4);
+    expect(laneLimit(false, -6.9)).toBe(5.4);
+    expect(laneLimit(false, -7)).toBe(9.3);
+    expect(laneLimit(true, 0)).toBe(15);
   });
 });

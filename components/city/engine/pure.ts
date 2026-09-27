@@ -38,5 +38,13 @@ export const kmh = (v: number) => String(Math.round(v * 3.1)).padStart(3, '0');
 /** Sector whose file is open at avenue position `z` (70 before its gate to 400 past it). */
 export const sectorAt = (z: number): Sector | null => CPS.find((cp) => z <= cp.z + 70 && z >= cp.z - 400) ?? null;
 
+/**
+ * How far the bike may steer from the centre line. `dz` = distance before the first gate (Ngọ Môn):
+ * over the last 38 units the limit narrows from 9.3 to 5.4 (inside its centre arch) and stays there until 7 past it.
+ * Airborne, the limit is 15 everywhere.
+ */
+export const laneLimit = (air: boolean, dz: number) =>
+  air ? 15 : dz > -7 && dz < 45 ? 5.4 + 3.9 * Math.min(1, Math.max(0, (dz - 7) / 38)) : 9.3;
+
 /** Rail progress dot position (percent) for avenue position `z`. */
 export const railTop = (z: number) => Math.max(0, Math.min(100, ((150 - z) / (150 + 2450)) * 100));

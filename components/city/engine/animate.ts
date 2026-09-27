@@ -1,11 +1,13 @@
 import type { Engine } from './engine';
 import { animShards } from './shards';
 import { placeCraft } from './craft';
+import { animAirships } from './airships';
 
-/** Per-frame life of the city: lens, rain, sky traffic, gate holograms, the dragon's fire, Bến Thành clocks. */
+/** Per-frame life of the city: lens, rain, searchlights and airships, sky traffic, gate holograms, the dragon's fire, Bến Thành clocks. */
 export function animateWorld(e: Engine, dt: number, t: number) {
   const c = e.cam, W = e.w, ride = e.S.phase === 'ride';
   W.sky.position.copy(c.position);
+  animAirships(e.airships, t);
   animShards(e.shards, dt, t);
   if (e.post) {
     const L = e.post.lens.uniforms, tg = ride ? Math.max(0, Math.min(1, (Math.abs(e.bike.v) - 45) / 100)) : 0;

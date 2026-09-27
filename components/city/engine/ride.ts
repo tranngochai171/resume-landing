@@ -2,7 +2,7 @@ import { CPS } from '../data';
 import type { Engine } from './engine';
 import { animCockpit } from './cockpit';
 import { collectNear } from './shards';
-import { introLogCount, introPct, introStatus, kmh, railTop, sectorAt } from './pure';
+import { introLogCount, introPct, introStatus, kmh, laneLimit, railTop, sectorAt } from './pure';
 
 /** Cold-boot flyover: ~11s along the camera path while the loader fills; then the "ready" card. */
 export function intro(e: Engine, dt: number, t: number) {
@@ -48,7 +48,7 @@ export function ride(e: Engine, dt: number, t: number) {
   b.st += (inp - b.st) * Math.min(1, dt * 5);
   const air = fly || e.landing;
   b.x += b.st * (5 + Math.abs(b.v) * 0.2) * dt;
-  const lim = air ? 15 : 9.3, cx = Math.max(-lim, Math.min(lim, b.x));
+  const lim = laneLimit(air, b.z - CPS[0].z), cx = Math.max(-lim, Math.min(lim, b.x));
   b.x += (cx - b.x) * (air ? 1 : Math.min(1, dt * 5));
   const vUp = (k.up ? 1 : 0) - (k.dn ? 1 : 0);
   if (fly) e.alt = Math.max(6, Math.min(150, e.alt + vUp * 28 * dt));

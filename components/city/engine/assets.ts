@@ -25,7 +25,7 @@ const ENV_SIZE = 256;
 export function reserveAssetSlots(renderer: T.WebGLRenderer, scene: T.Scene, G: GateMats): AssetSlots {
   const white = new T.DataTexture(new Uint8Array([255, 255, 255, 255]), 1, 1);
   white.needsUpdate = true;
-  for (const mt of [G.woodM, G.redWood, G.stoneM, G.whiteM, G.ochreM, G.ochreL, G.brickM]) mt.map = white;
+  for (const mt of [G.woodM, G.ochreL]) mt.map = white;
   G.woodM.roughnessMap = white;
   const pmrem = new T.PMREMGenerator(renderer);
   const p = pmrem as unknown as PmremInternals;
@@ -93,16 +93,14 @@ export async function applyAssets(renderer: T.WebGLRenderer, scene: T.Scene, uni
   }
   if (wn) uni.uWN.value = wn;
   if (w2) {
-    for (const mt of [G.woodM, G.redWood]) mt.map = w2;
+    G.woodM.map = w2;
     if (hwr) G.woodM.roughnessMap = hwr;
-    G.redWood.color.multiplyScalar(1.9);
     G.woodM.color.multiplyScalar(1.6);
   }
-  if (d2)
-    for (const mt of [G.stoneM, G.whiteM, G.ochreM, G.ochreL, G.brickM]) {
-      mt.map = d2;
-      mt.color.multiplyScalar(1.5);
-    }
+  if (d2) {
+    G.ochreL.map = d2;
+    G.ochreL.color.multiplyScalar(1.5);
+  }
   await yieldToMain();
   if (isDead()) return result;
   try {

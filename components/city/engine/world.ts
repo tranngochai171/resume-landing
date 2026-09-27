@@ -68,11 +68,11 @@ export async function buildWorld(scene: T.Scene, FOG: T.Color, fonts: Fonts, tex
     new T.ShaderMaterial({
       side: T.BackSide,
       depthWrite: false,
-      uniforms: { fogColor: uni.fogColor },
+      uniforms: { fogColor: uni.fogColor, uTime: uni.uTime },
       vertexShader: 'varying vec3 vP;void main(){vP=position;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}',
       fragmentShader:
-        'uniform vec3 fogColor;varying vec3 vP;' + HS +
-        'float vn(vec2 p){vec2 i=floor(p),f=fract(p);f=f*f*(3.-2.*f);return mix(mix(hs(i),hs(i+vec2(1.,0.)),f.x),mix(hs(i+vec2(0.,1.)),hs(i+1.),f.x),f.y);}float cf(vec2 p){return vn(p)*.5+vn(p*2.03)*.27+vn(p*4.1)*.15+vn(p*8.3)*.08;}void main(){float h=normalize(vP).y;vec3 hor=vec3(.34,.07,.3);vec3 top=vec3(.012,.008,.035);vec3 c=mix(fogColor,hor,smoothstep(-.02,.06,h));c=mix(c,top,smoothstep(.06,.55,h));c+=vec3(.05,.25,.35)*exp(-abs(h-.03)*60.)*.4;vec3 dd=normalize(vP);if(dd.y>0.){vec2 cu=dd.xz/(dd.y+.12)*1.4;float cn=cf(cu);float cov=smoothstep(.48,.78,cn)*smoothstep(.01,.12,dd.y)*(1.-smoothstep(.45,.85,dd.y));vec3 cc=mix(vec3(.3,.08,.24),vec3(.06,.03,.09),smoothstep(.04,.35,dd.y))*(.8+.4*cf(cu*1.7+3.));c=mix(c,cc,cov*.85);}gl_FragColor=vec4(c,1.);}',
+        'uniform vec3 fogColor;uniform float uTime;varying vec3 vP;' + HS +
+        'float vn(vec2 p){vec2 i=floor(p),f=fract(p);f=f*f*(3.-2.*f);return mix(mix(hs(i),hs(i+vec2(1.,0.)),f.x),mix(hs(i+vec2(0.,1.)),hs(i+1.),f.x),f.y);}float cf(vec2 p){return vn(p)*.5+vn(p*2.03)*.27+vn(p*4.1)*.15+vn(p*8.3)*.08;}void main(){vec3 dd=normalize(vP);float h=dd.y,t=uTime;vec3 hor=vec3(.34,.07,.3);vec3 top=vec3(.012,.008,.035);vec3 c=mix(fogColor,hor,smoothstep(-.02,.06,h));c=mix(c,top,smoothstep(.06,.55,h));c+=vec3(.05,.25,.35)*exp(-abs(h-.03)*60.)*.4;if(h>.05){vec2 sg=vec2(atan(dd.z,dd.x),asin(h))*170.;vec2 si=floor(sg);float r=hs(si);if(r>.984){vec2 sf=fract(sg)-.5-(vec2(hs(si+7.),hs(si+3.))-.5)*.6;c+=vec3(.8,.87,1.)*exp(-dot(sf,sf)*55.)*(.55+.45*sin(t*(1.+r*3.)+r*40.))*smoothstep(.05,.3,h)*(r-.984)*62.;}}if(h>.1){vec2 au=dd.xz/(h+.05);vec3 ac=vec3(0.);for(int i=0;i<3;i++){float fi=float(i);float y0=-1.3+fi*.95+.4*sin(au.x*.8+t*.05+fi*2.1)+.3*vn(vec2(au.x*1.2+fi*5.,t*.04));float d=au.y-y0;float up=clamp(-d*1.2+1.,0.,1.);float band=exp(-d*d*10.)*up*(.35+.65*vn(vec2(au.x*11.+t*.3+fi*3.,fi)))*(.6+.4*sin(au.x*3.+t*.2+fi));ac+=mix(vec3(.05,1.,.75),vec3(1.,.15,.75),clamp(fi*.45+.25*sin(au.x*.4+t*.03),0.,1.))*band;}c+=ac*.3*smoothstep(.1,.45,h);}vec3 P=normalize(vec3(.12,.31,-1.));vec3 R=normalize(cross(vec3(0.,1.,0.),P));vec3 U=cross(P,R);float dp=dot(dd,P);float pa=0.;if(dp>.5){vec2 q=vec2(dot(dd,R),dot(dd,U))/dp;float pr=.2,l=length(q);float tl=-.36;vec2 rq=vec2(cos(tl)*q.x-sin(tl)*q.y,sin(tl)*q.x+cos(tl)*q.y);float re=length(vec2(rq.x,rq.y/.23));float gap=smoothstep(.36,.37,re)*(1.-smoothstep(.385,.395,re));float ring=smoothstep(.265,.28,re)*(1.-smoothstep(.5,.53,re))*(.3+.7*vn(vec2(re*70.,1.)))*(1.-gap*.85);vec3 rc=mix(vec3(1.,.72,.95),vec3(.3,.85,1.2),vn(vec2(re*22.,7.)))*.85;vec3 pl=vec3(0.);if(l<pr){float z=sqrt(pr*pr-l*l)/pr;vec3 n=vec3(q/pr,z);float dif=clamp(dot(n,normalize(vec3(-.75,.4,.5))),0.,1.);float b=rq.y/pr;float bd=vn(vec2(b*7.+vn(q*14.+t*.004)*.9,2.));vec3 base=mix(vec3(.14,.04,.28),vec3(.62,.2,.5),bd);base=mix(base,vec3(.12,.4,.55),smoothstep(.55,.85,vn(vec2(b*19.,3.))));float rim=pow(1.-z,3.);pl=base*(.07+dif*.85)+vec3(1.3,.3,1.)*rim*(.35+dif*.9);pa=smoothstep(pr,pr-.003,l);}float halo=exp(-max(l-pr,0.)*24.)*step(pr-.002,l);c+=vec3(.9,.2,.75)*halo*.4;float rA=ring*.9;if(rq.y<0.){c=mix(c,pl,pa);c=mix(c,rc,rA);}else{c=mix(c,rc,rA);c=mix(c,pl,pa);}pa=max(pa,rA*.7);}if(h>0.){vec2 cu=dd.xz/(h+.12)*1.4;float cn=cf(cu);float cov=smoothstep(.48,.78,cn)*smoothstep(.01,.12,h)*(1.-smoothstep(.45,.85,h));vec3 cc=mix(vec3(.3,.08,.24),vec3(.06,.03,.09),smoothstep(.04,.35,h))*(.8+.4*cf(cu*1.7+3.));c=mix(c,cc,cov*(.85-.5*pa));}float sd=floor(t/5.5),ph=fract(t/5.5);if(ph<.28&&h>.18){vec2 a2=dd.xz/(h+.1);vec2 s0=vec2(hs(vec2(sd,1.))*4.-2.,hs(vec2(sd,2.))*3.-2.2);vec2 sv=normalize(vec2(hs(vec2(sd,3.))-.5,-1.));float k=ph/.28;vec2 w=a2-(s0+sv*k*3.2);float al=dot(w,-sv);float pp=length(w+sv*al);c+=vec3(.8,.95,1.3)*step(0.,al)*(1.-smoothstep(0.,.8,al))*exp(-pp*pp*30000.)*sin(k*3.1416)*2.2;}gl_FragColor=vec4(c,1.);}',
     }),
   );
   sky.renderOrder = -1;
@@ -426,7 +426,7 @@ void main(){vec3 V=normalize(vW-cameraPosition);vec2 p=vW.xz;
   lamps.forEach((l, i) => {
     if (l.s < 0 && i % 8 === 0 && !nearGate(l.z, l.z + 19)) [9.4, 8.6].forEach((y) => cat(-12.6, y, l.z, 12.6, y, l.z + 19, 1.4, 24));
   });
-  const lan: V3[] = [];
+  const lan: V3[] = [], flg: V3[] = [];
   for (let z = 60; z > -2700; z -= 64) {
     if (nearGate(z, z)) continue;
     const y0 = 14, sag = 1.6;
@@ -434,6 +434,11 @@ void main(){vec3 V=normalize(vW-cameraPosition);vec2 p=vW.xz;
     for (let i = 1; i < 10; i++) {
       const t = i / 10;
       lan.push([-12.6 + 25.2 * t, y0 - sag * 4 * t * (1 - t) - 0.8, z]);
+    }
+    // Vietnamese flags hang between the lanterns.
+    for (let i = 1; i < 9; i++) {
+      const t = (i + 0.5) / 10;
+      flg.push([-12.6 + 25.2 * t, y0 - sag * 4 * t * (1 - t) - 0.02, z]);
     }
   }
   tubes.forEach((b) => {
@@ -452,6 +457,39 @@ void main(){vec3 V=normalize(vW-cameraPosition);vec2 p=vW.xz;
     lanM.setColorAt(i, new T.Color(c[0], c[1], c[2]));
   });
   scene.add(lanM);
+  // Red flag, yellow star; the cloth waves more towards its free (lower) edge.
+  const fTex = canvasTex(300, 200, (fx) => {
+    fx.fillStyle = '#DA251D';
+    fx.fillRect(0, 0, 300, 200);
+    fx.fillStyle = '#FFE600';
+    fx.beginPath();
+    const R0 = 60, r0 = R0 * 0.382;
+    for (let k = 0; k < 10; k++) {
+      const a = -Math.PI / 2 + (k * Math.PI) / 5, rr = k % 2 ? r0 : R0;
+      if (k) fx.lineTo(150 + Math.cos(a) * rr, 100 + Math.sin(a) * rr);
+      else fx.moveTo(150 + Math.cos(a) * rr, 100 + Math.sin(a) * rr);
+    }
+    fx.closePath();
+    fx.fill();
+  });
+  fTex.colorSpace = T.SRGBColorSpace;
+  const fGeo = new T.PlaneGeometry(1.2, 0.8, 10, 5);
+  fGeo.translate(0, -0.4, 0);
+  const fMat = new T.ShaderMaterial({
+    side: T.DoubleSide,
+    uniforms: { uTime: uni.uTime, uMap: { value: fTex }, fogColor: uni.fogColor, fogDensity: uni.fogDensity },
+    vertexShader:
+      'uniform float uTime;varying vec2 vUv;varying float vSh;varying vec3 vW;void main(){vUv=uv;vec3 p=position;vec3 o=instanceMatrix[3].xyz;float ph=o.x*1.7+o.z*.37;float amp=clamp(-p.y/.8,0.,1.)*.75+.25;float w=sin(uTime*3.4+p.x*5.5+ph)*.13+sin(uTime*5.3+p.x*9.+p.y*4.+ph*1.3)*.045;p.z+=w*amp;p.y+=cos(uTime*2.1+ph)*.03*amp;float dw=cos(uTime*3.4+p.x*5.5+ph)*.7;vSh=.72+.28*dw;vec4 wp=modelMatrix*instanceMatrix*vec4(p,1.);vW=wp.xyz;gl_Position=projectionMatrix*viewMatrix*wp;}',
+    fragmentShader:
+      'uniform sampler2D uMap;uniform vec3 fogColor;uniform float fogDensity;varying vec2 vUv;varying float vSh;varying vec3 vW;void main(){vec3 c=texture2D(uMap,vUv).rgb;float st=step(.8,c.g);c*=mix(.95,1.35,st)*vSh;float d=length(vW-cameraPosition);float fg=clamp(1.-exp(-d*d*fogDensity*fogDensity),0.,1.);gl_FragColor=vec4(mix(c,fogColor,fg),1.);}',
+  });
+  const flags = new T.InstancedMesh(fGeo, fMat, flg.length);
+  flg.forEach((a, i) => {
+    m.compose(p.set(a[0], a[1], a[2]), q.identity(), one);
+    flags.setMatrixAt(i, m);
+  });
+  flags.frustumCulled = false;
+  scene.add(flags);
   await slice();
 
   // Neon signage, batched into one InstancedMesh per sign material.
@@ -562,7 +600,7 @@ void main(){vec3 V=normalize(vW-cameraPosition);vec2 p=vW.xz;
   const gates = await buildGates(scene, { rnd, addSign, fonts, uni }, slice);
 
   // Height the sky traffic climbs to while crossing each gate.
-  const CLR: Record<string, number> = { about: 36, work: 29, ledger: 41, stack: 40, contact: 44 };
+  const CLR: Record<string, number> = { about: 36, work: 29, ledger: 41, stack: 40, contact: 54 };
   const clearZ = CPS.map((cp) => ({ z0: cp.z + (cp.id === 'stack' ? 64 : 24), z1: cp.z - (cp.id === 'stack' ? 200 : 18), y: CLR[cp.id] }));
 
   // Dragon fire particles.

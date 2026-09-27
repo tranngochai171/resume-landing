@@ -4,6 +4,7 @@ import { buildWorld, type World } from './world';
 import { buildCockpit, drawDash, type Cockpit } from './cockpit';
 import { buildShards, type Shards } from './shards';
 import { buildCraft, type Craft } from './craft';
+import { buildAirships, type Airships } from './airships';
 import { buildPost, type Post } from './post';
 import { CityAudio } from './audio';
 import { animateWorld } from './animate';
@@ -66,6 +67,7 @@ export class Engine {
   ck!: Cockpit;
   shards!: Shards;
   craft!: Craft;
+  airships!: Airships;
   post: Post | null = null;
   audio: CityAudio;
   v3 = new T.Vector3();
@@ -242,6 +244,7 @@ export class Engine {
     await slice();
     this.shards = buildShards(scene);
     this.craft = buildCraft(scene, this.w.sp);
+    this.airships = buildAirships(scene, this.fonts);
     this.slots = reserveAssetSlots(r, scene, this.w.gateMats);
     try {
       this.post = buildPost(r, scene, cam, w, h);
