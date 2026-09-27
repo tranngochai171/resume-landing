@@ -336,6 +336,12 @@ export class CityAudio {
       o.type = type;
       o.frequency.value = fq;
       this.wobG.connect(o.detune);
+      // Drop the wobble link when the note ends, or connections pile up for the whole session.
+      o.onended = () => {
+        try {
+          this.wobG.disconnect(o.detune);
+        } catch {}
+      };
       const g = ac.createGain();
       g.gain.setValueAtTime(0.0001, t0);
       g.gain.linearRampToValueAtTime(vol, t0 + att);
