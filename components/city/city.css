@@ -1,8 +1,8 @@
 /* TOPY.OS - Neon City 3D. Port of the Claude Design prototype's inline styles; everything scoped under .city. */
 
 .city {
-  --city-display: var(--font-city), 'Chakra Petch', sans-serif;
-  --city-mono: var(--font-city-mono), 'JetBrains Mono', monospace;
+  --city-display: var(--font-city, 'Chakra Petch', sans-serif);
+  --city-mono: var(--font-city-mono, 'JetBrains Mono', monospace);
   position: fixed;
   inset: 0;
   background: #05030a;

@@ -9,10 +9,12 @@ import type { CityHandle } from './engine';
 import { pickView, probeWebGL } from './support';
 import './city.css';
 
-const chakra = Chakra_Petch({ subsets: ['latin'], weight: ['400', '500', '600', '700'], variable: '--font-city', display: 'swap' });
-const mono = JetBrains_Mono({ subsets: ['latin'], weight: ['400', '500', '700'], variable: '--font-city-mono', display: 'swap' });
+// Same fallback chain as the design ('Chakra Petch', sans-serif / 'JetBrains Mono', monospace): symbols the
+// webfonts lack (∞ ▸ ↗ ◆ …) must come from the plain system fonts, not next/font's metric-adjusted Arial.
+const chakra = Chakra_Petch({ subsets: ['latin'], weight: ['400', '500', '600', '700'], variable: '--font-city', display: 'swap', adjustFontFallback: false, fallback: ['sans-serif'] });
+const mono = JetBrains_Mono({ subsets: ['latin'], weight: ['400', '500', '700'], variable: '--font-city-mono', display: 'swap', adjustFontFallback: false, fallback: ['monospace'] });
 /** Canvas signage is drawn with the same (hashed) next/font families. */
-const FONTS = { display: `${chakra.style.fontFamily}, sans-serif`, mono: `${mono.style.fontFamily}, monospace` };
+const FONTS = { display: chakra.style.fontFamily, mono: mono.style.fontFamily };
 
 // The 2D TOPY.OS page, loaded only when the city cannot run (no WebGL2, software GPU, reduced motion, errors).
 const CyberHome = dynamic(() => import('@/components/cyber/CyberHome').then((m) => m.CyberHome), { ssr: false });
