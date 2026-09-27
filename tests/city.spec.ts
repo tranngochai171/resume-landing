@@ -34,7 +34,7 @@ async function startRide(page: Page, mobile: boolean) {
     await expect(page.getByRole('button', { name: /IGNITE/ })).toBeVisible();
     await page.keyboard.press('Enter');
   }
-  await expect(page.getByRole('link', { name: '2D VIEW' })).toBeVisible();
+  await expect(page.getByRole('link', { name: 'CLASSIC', exact: true })).toBeVisible();
 }
 
 test.describe('Neon City (3D)', () => {
@@ -47,7 +47,7 @@ test.describe('Neon City (3D)', () => {
     await expect(page.locator('.city canvas')).toBeAttached();
     await expect(page.locator('#breach')).toHaveCount(0);
     await expect(page.locator('h1')).toHaveText(/Tran Ngoc Hai/);
-    await expect(page.getByRole('link', { name: '2D VIEW' })).toHaveAttribute('href', '/os/');
+    await expect(page.getByRole('link', { name: 'CLASSIC', exact: true })).toHaveAttribute('href', '/os/');
     expect(errors).toEqual([]);
   });
 

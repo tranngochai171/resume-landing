@@ -499,11 +499,16 @@
 .city .city-tg--mode:hover {
   background: rgba(0, 229, 255, 0.18);
 }
-.city .city-tg--link {
+.city .city-classic-hud {
+  white-space: nowrap;
   display: inline-flex;
   align-items: center;
   border: 1px solid rgba(255, 255, 255, 0.16);
   color: #9a9ab4;
+  font-size: 10.5px;
+  letter-spacing: 0.16em;
+  padding: 8px 12px;
+  border-radius: 2px;
 }
 .city-key {
   color: #55556e;

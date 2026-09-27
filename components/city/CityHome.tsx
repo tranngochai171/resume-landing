@@ -281,8 +281,8 @@ export function CityHome() {
                 <button type="button" className="city-tg city-tg--mode" onClick={act((h) => h.toggleMode())}>
                   MODE: {s.mode === 'fly' ? 'FLY' : 'BIKE'} <span className="city-key">[V]</span>
                 </button>
-                <a href={OS} className="city-tg city-tg--link" title="The 2D TOPY.OS page">
-                  2D VIEW
+                <a href={OS} className="city-classic-hud">
+                  CLASSIC
                 </a>
               </div>
             )}
@@ -316,7 +316,7 @@ export function CityHome() {
                 <div className="city-mshards">
                   <span>{shardsText}</span>
                   <a href={OS} className="city-m2d">
-                    2D VIEW
+                    CLASSIC
                   </a>
                 </div>
               </div>
