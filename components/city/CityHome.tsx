@@ -52,6 +52,18 @@ const READY_KEYS: [string, string][] = [['W/↑', 'THROTTLE'], ['A D', 'STEER'],
 
 const OFF = '#6a6a86';
 
+/** Resolves after the next paint once the main thread is idle (or after 300 ms at the latest). */
+function afterPaintIdle() {
+  return new Promise<void>((resolve) =>
+    requestAnimationFrame(() =>
+      setTimeout(() => {
+        if ('requestIdleCallback' in window) window.requestIdleCallback(() => resolve(), { timeout: 300 });
+        else resolve();
+      }, 0),
+    ),
+  );
+}
+
 /**
  * `/`: TOPY.OS - Neon City 3D. Ride a hover-bike down a neon Sài Gòn avenue; each gate opens a file
  * (about, work, ledger, stack, contact). The three.js engine is loaded on demand; when the city
@@ -65,6 +77,8 @@ export function CityHome() {
   const hostRef = useRef<HTMLDivElement>(null);
   const panelRef = useRef<HTMLElement>(null);
   const eng = useRef<CityHandle | null>(null);
+  /** SKIP pressed before the engine exists: applied as soon as it starts. */
+  const skipQueued = useRef(false);
 
   useEffect(() => {
     if (pickView(window.location.search, window.matchMedia('(prefers-reduced-motion: reduce)').matches, probeWebGL) === '2d') {
@@ -78,10 +92,14 @@ export function CityHome() {
       eng.current = null;
       if (!dead) setView('2d');
     };
-    import('./engine')
-      .then(({ createCity }) => {
+    // Download the engine now, but start building the city only after the loader has painted and
+    // the page is idle, so first paint / LCP never wait on it.
+    const engine = import('./engine');
+    Promise.all([engine, afterPaintIdle()])
+      .then(([{ createCity }]) => {
         if (dead || !hostRef.current || !rootRef.current) return;
         eng.current = createCity(hostRef.current, rootRef.current, FONTS, { onState: setS, onFallback: fallback });
+        if (skipQueued.current) eng.current.skip();
       })
       .catch(fallback);
     return () => {
@@ -100,6 +118,10 @@ export function CityHome() {
 
   const act = (fn: (h: CityHandle) => void) => () => {
     if (eng.current) fn(eng.current);
+  };
+  const skip = () => {
+    if (eng.current) eng.current.skip();
+    else skipQueued.current = true;
   };
   const copyEmail = () => {
     const done = () => {
@@ -154,14 +176,15 @@ export function CityHome() {
         </div>
       )}
 
-      {ph === 'loading' && (
+      {/* Server-rendered with the boot screen so it paints first (it is the LCP element). */}
+      {(ph === 'boot' || ph === 'loading') && (
         <div className="city-load">
           <div className="city-load-top">
             <span className="city-brand">
               <span className="city-t">T//</span>
               <span className="city-muted">TOPY.OS - NEON CITY</span>
             </span>
-            <button type="button" className="city-skip" onClick={act((h) => h.skip())}>
+            <button type="button" className="city-skip" onClick={skip}>
               SKIP ▸▸
             </button>
           </div>

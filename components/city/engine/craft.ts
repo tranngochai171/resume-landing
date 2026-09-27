@@ -129,6 +129,12 @@ export function buildCraft(scene: T.Scene, cars: Car[]): Craft {
   const head = mk(merge([hA, hB, sph(0, 1.02, -2.8, 0.07)]), new T.MeshBasicMaterial({ color: new T.Color(2.2, 2.3, 2.5) }));
   const cols = [0x2a2d34, 0xc9c9cc, 0x1f3a4a, 0xc47a14, 0x5a1020, 0x3b3f2e].map((c) => new T.Color(c)),
     gcols = [new T.Color(0.35, 0.9, 1.25), new T.Color(1.2, 0.3, 0.8), new T.Color(1.2, 0.7, 0.3)];
+  // Create the instance colour buffers now (placeCraft rewrites them every frame) so the shaders are
+  // compiled with instance colours during warm-up instead of on the first rendered frame.
+  for (let j = 0; j < K; j++) {
+    body.setColorAt(j, cols[0]);
+    glow.setColorAt(j, gcols[0]);
+  }
   return {
     K, D, body, glow, rot,
     stat: [body, canopy, frame, glow, blurM, navR, navG, head],

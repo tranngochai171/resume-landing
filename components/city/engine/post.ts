@@ -9,20 +9,19 @@ const BLOOM = 0.6;
 
 const VERT = 'varying vec2 vUv;void main(){vUv=uv;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}';
 
-export type Post = { composer: EffectComposer; lens: ShaderPass; bloom: UnrealBloomPass };
+export type Post = { composer: EffectComposer; guard: ShaderPass; lens: ShaderPass; bloom: UnrealBloomPass };
 
 /** Render → NaN/overflow guard → bloom → "lens" (speed blur, chromatic aberration, ACES grade, vignette, grain). */
 export function buildPost(r: T.WebGLRenderer, scene: T.Scene, cam: T.Camera, w: number, h: number): Post {
   const composer = new EffectComposer(r);
   composer.addPass(new RenderPass(scene, cam));
-  composer.addPass(
-    new ShaderPass({
-      uniforms: { tDiffuse: { value: null } },
-      vertexShader: VERT,
-      fragmentShader:
-        'uniform sampler2D tDiffuse;varying vec2 vUv;bool bad(float x){return !(x<0.||x>0.||x==0.)||abs(x)>1e4;}void main(){vec4 c=texture2D(tDiffuse,vUv);if(bad(c.r)||bad(c.g)||bad(c.b))c=vec4(0.,0.,0.,1.);gl_FragColor=vec4(clamp(c.rgb,0.,24.),1.);}',
-    }),
-  );
+  const guard = new ShaderPass({
+    uniforms: { tDiffuse: { value: null } },
+    vertexShader: VERT,
+    fragmentShader:
+      'uniform sampler2D tDiffuse;varying vec2 vUv;bool bad(float x){return !(x<0.||x>0.||x==0.)||abs(x)>1e4;}void main(){vec4 c=texture2D(tDiffuse,vUv);if(bad(c.r)||bad(c.g)||bad(c.b))c=vec4(0.,0.,0.,1.);gl_FragColor=vec4(clamp(c.rgb,0.,24.),1.);}',
+  });
+  composer.addPass(guard);
   const bloom = new UnrealBloomPass(new T.Vector2(w / 3, h / 3), 1.0, 0.55, 0.68);
   // Match r160's bloom, which the design was tuned on. The current pass adds 3*strength*bloom
   // (premultiplied); r160 added bloom*alpha with alpha = 3*strength, i.e. 3*strength^2*bloom.
@@ -50,5 +49,5 @@ void main(){vec2 c=vUv-.5;float r=length(c*vec2(uAsp,1.));
  gl_FragColor=vec4(col,1.);}`,
   });
   composer.addPass(lens);
-  return { composer, lens, bloom };
+  return { composer, guard, lens, bloom };
 }

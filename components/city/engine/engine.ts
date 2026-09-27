@@ -9,6 +9,9 @@ import { CityAudio } from './audio';
 import { animateWorld } from './animate';
 import { intro, ride } from './ride';
 import { deadzone } from './pure';
+import { applyAssets, fetchTextures, reserveAssetSlots, type AssetSlots } from './assets';
+import { postMaterials, warmUp } from './warm';
+import { slicer } from './yield';
 import type { Fonts } from './textures';
 
 export type CityCallbacks = {
@@ -20,6 +23,9 @@ export type CityCallbacks = {
 
 /** Keyboard map: arrows / WASD drive, Shift or Space boosts, E/R climb and Q/F descend in fly mode. */
 const KEYMAP: Record<string, string> = { arrowup: 'w', arrowdown: 's', arrowleft: 'a', arrowright: 'd', w: 'w', s: 's', a: 'a', d: 'd', shift: 'boost', ' ': 'boost', e: 'up', r: 'up', q: 'dn', f: 'dn' };
+
+/** Work per main-thread task during start-up (a mid-range phone runs ~4x slower than this budget). */
+const SLICE_MS = 8;
 
 /** The flyover camera path: from high above downtown, down the avenue, up over the dragon. */
 const FLYOVER: [number, number, number][] = [[0, 300, 760], [0, 170, 380], [6, 70, 130], [-4, 26, 20], [0, 11, -150], [0, 5, -250], [5, 9, -380], [-5, 9, -640], [0, 5.5, -750], [4, 9, -900], [0, 9, -1150], [0, 8, -1250], [-5, 10, -1400], [0, 40, -1650], [0, 110, -1850], [0, 190, -1960]];
@@ -68,6 +74,7 @@ export class Engine {
   private texCache = new Map<string, T.CanvasTexture>();
   private loaded: T.Texture[] = [];
   private env: T.WebGLRenderTarget | null = null;
+  private slots: AssetSlots | null = null;
   private pr = 1;
   private prMax = 1;
   private perf = { acc: 0, n: 0, cool: 2 };
@@ -219,12 +226,18 @@ export class Engine {
     this.cam = cam;
     scene.add(cam);
     cam.updateMatrixWorld();
-    this.w = buildWorld(scene, FOG, this.fonts, this.texCache);
+    const textures = fetchTextures(r.capabilities.getMaxAnisotropy());
+    // Build in short slices so the page (SKIP, keys) stays responsive and no task blocks the thread.
+    const slice = slicer(SLICE_MS);
+    await slice();
+    this.w = await buildWorld(scene, FOG, this.fonts, this.texCache, slice);
+    if (this.dead) return;
     this.ck = buildCockpit(cam);
     this.drawDash();
+    await slice();
     this.shards = buildShards(scene);
     this.craft = buildCraft(scene, this.w.sp);
-    this.loadAssets().catch((e) => console.warn('[city] assets', e));
+    this.slots = reserveAssetSlots(r, scene, this.w.gateMats);
     try {
       this.post = buildPost(r, scene, cam, w, h);
     } catch (e) {
@@ -232,75 +245,46 @@ export class Engine {
       this.post = null;
     }
     this.path = new T.CatmullRomCurve3(FLYOVER.map((a) => new T.Vector3(a[0], a[1], a[2])), false, 'catmullrom', 0.4);
+    // Upload the canvas-drawn textures and compile every shader now, off the first frames.
+    const uploads = new Set<T.Texture>();
+    scene.traverse((o) => {
+      const m = (o as T.Mesh).material;
+      for (const mt of Array.isArray(m) ? m : m ? [m] : []) {
+        Object.values(mt).forEach((v) => v instanceof T.Texture && uploads.add(v));
+        if (mt instanceof T.ShaderMaterial) Object.values(mt.uniforms).forEach((u) => u?.value instanceof T.Texture && uploads.add(u.value));
+      }
+    });
+    for (const t of Array.from(uploads)) {
+      if (t.isRenderTargetTexture) continue;
+      r.initTexture(t);
+      await slice();
+    }
+    const { ride } = await warmUp(r, scene, cam, this.ck.ck, [...(this.post ? postMaterials(this.post) : []), ...this.slots.filterMaterials], slice);
+    if (this.dead) return;
+    ride.catch((e) => console.warn('[city] warm-up', e));
+    const slots = this.slots;
+    textures
+      .then((t) => applyAssets(r, scene, this.w.uni, this.w.gateMats, slots, t, this.ck.ck, () => this.dead))
+      .then((res) => {
+        this.loaded.push(...res.owned);
+        this.env = res.env;
+        if (this.dead) this.releaseAssets();
+      })
+      .catch((e) => console.warn('[city] assets', e));
     this.set({ phase: 'loading', shards: this.shards.got.size });
     this.t0 = this.last = performance.now();
     this.raf = requestAnimationFrame(this.loop);
   }
 
-  /** Textures for road / facade detail and the gates, then a PMREM environment for the metal surfaces. */
-  private async loadAssets() {
-    const tl = new T.TextureLoader(), maxA = this.renderer.capabilities.getMaxAnisotropy();
-    const tex = (u: string) =>
-      new Promise<T.Texture | null>((res) =>
-        tl.load(
-          '/textures/city/' + u,
-          (t) => {
-            t.wrapS = t.wrapT = T.RepeatWrapping;
-            t.anisotropy = maxA;
-            res(t);
-          },
-          undefined,
-          () => res(null),
-        ),
-      );
-    const [wn, dist, hw, hwr] = await Promise.all([tex('waternormals.jpg'), tex('disturb.jpg'), tex('hardwood2_diffuse.jpg'), tex('hardwood2_roughness.jpg')]);
-    const got = [wn, dist, hw, hwr].filter((t): t is T.Texture => !!t);
-    this.loaded.push(...got);
-    if (this.dead) {
-      got.forEach((t) => t.dispose());
-      return;
-    }
-    const uni = this.w.uni;
-    if (dist) {
-      uni.uDist.value = dist;
-      uni.uTex.value = 1;
-    }
-    if (wn) uni.uWN.value = wn;
-    const G = this.w.gateMats;
-    if (hw) {
-      const w2 = hw.clone();
-      w2.needsUpdate = true;
-      w2.repeat.set(0.35, 0.35);
-      this.loaded.push(w2);
-      for (const mt of [G.woodM, G.redWood]) {
-        mt.map = w2;
-        if (hwr && mt instanceof T.MeshStandardMaterial) mt.roughnessMap = hwr;
-        mt.needsUpdate = true;
-      }
-      G.redWood.color.multiplyScalar(1.9);
-      G.woodM.color.multiplyScalar(1.6);
-    }
-    if (dist) {
-      const d2 = dist.clone();
-      d2.needsUpdate = true;
-      d2.repeat.set(0.25, 0.25);
-      this.loaded.push(d2);
-      for (const mt of [G.stoneM, G.whiteM, G.ochreM, G.ochreL, G.brickM]) {
-        mt.map = d2;
-        mt.color.multiplyScalar(1.5);
-        mt.needsUpdate = true;
-      }
-    }
-    try {
-      const pm = new T.PMREMGenerator(this.renderer);
-      const ck = this.ck.ck, vis = ck.visible;
-      ck.visible = false;
-      this.env = pm.fromScene(this.scene, 0.035, 0.5, 6000);
-      ck.visible = vis;
-      this.scene.environment = this.env.texture;
-      pm.dispose();
-    } catch (e) {
-      console.warn('[city] env', e);
+  private releaseAssets() {
+    this.loaded.forEach((t) => t.dispose());
+    this.loaded = [];
+    this.env?.dispose();
+    this.env = null;
+    if (this.slots) {
+      this.slots.white.dispose();
+      this.slots.envStandIn?.dispose();
+      this.slots.pmrem.dispose();
     }
   }
 
@@ -572,8 +556,7 @@ export class Engine {
     this.audio.dispose();
     if (this.scene) disposeScene(this.scene);
     this.texCache.forEach((t) => t.dispose());
-    this.loaded.forEach((t) => t.dispose());
-    this.env?.dispose();
+    this.releaseAssets();
     if (this.post) {
       this.post.composer.passes.forEach((p) => p.dispose());
       this.post.composer.dispose();

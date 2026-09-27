@@ -24,6 +24,12 @@ function trackErrors(page: Page) {
   return errors;
 }
 
+/** The engine is running once the boot screen is gone (the loader itself is there from first paint). */
+async function waitForCity(page: Page) {
+  await expect(page.locator('.city canvas')).toBeAttached({ timeout: 60_000 });
+  await expect(page.locator('.city-boot')).toHaveCount(0, { timeout: 60_000 });
+}
+
 /** Load the city, skip the flyover from the loader and start riding (autopilot on mobile). */
 async function startRide(page: Page, mobile: boolean) {
   await page.goto(CITY);
@@ -74,6 +80,25 @@ test.describe('Neon City (3D)', () => {
     }
   });
 
+  test('the loader paints with the server HTML and SKIP works while the city is still starting', async ({ page, request }) => {
+    const html = await (await request.get(CITY)).text();
+    expect(html).toContain('city-load-pct');
+    // Hold the engine download until SKIP has been pressed, so the click lands before the city exists.
+    let release!: () => void;
+    const held = new Promise<void>((r) => (release = r));
+    await page.route('**/_next/static/chunks/**', async (route) => {
+      const res = await route.fetch();
+      const body = await res.text();
+      if (body.includes('UnrealBloomPass')) await held;
+      return route.fulfill({ response: res, body });
+    });
+    await page.goto(CITY);
+    await expect(page.locator('.city-boot')).toBeVisible();
+    await page.getByRole('button', { name: /SKIP/ }).click();
+    release();
+    await expect(page.getByRole('button', { name: /IGNITE|START AUTOPILOT TOUR/ })).toBeVisible({ timeout: 60_000 });
+  });
+
   test('panel content is in the server HTML for crawlers', async ({ request }) => {
     const html = await (await request.get('/')).text();
     for (const f of FILES) expect(html).toContain(f.text.replace("'", '&#x27;'));
@@ -105,7 +130,7 @@ test.describe('Neon City hands over to 2D at runtime', () => {
   test('a throwing frame stops the loop and falls back exactly once', async ({ page }) => {
     const fallbacks = trackFallbacks(page);
     await page.goto(CITY);
-    await page.getByRole('button', { name: /SKIP/ }).waitFor({ timeout: 60_000 });
+    await waitForCity(page);
     // Every loader frame reads the percent readout; make that throw on every call.
     await page.evaluate(() => {
       const proto = Element.prototype as unknown as { querySelector: (s: string) => Element | null };
@@ -124,7 +149,7 @@ test.describe('Neon City hands over to 2D at runtime', () => {
   test('a lost WebGL context falls back', async ({ page }) => {
     const fallbacks = trackFallbacks(page);
     await page.goto(CITY);
-    await page.getByRole('button', { name: /SKIP/ }).waitFor({ timeout: 60_000 });
+    await waitForCity(page);
     await page.evaluate(() => {
       const canvas = document.querySelector('.city canvas') as HTMLCanvasElement;
       canvas.getContext('webgl2')?.getExtension('WEBGL_lose_context')?.loseContext();

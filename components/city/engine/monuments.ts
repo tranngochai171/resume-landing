@@ -2,6 +2,7 @@ import * as T from 'three';
 import { CPS } from '../data';
 import { canvasTex, type Fonts } from './textures';
 import type { Uni } from './world';
+import type { Slice } from './yield';
 
 export type Gate = { g: T.Group; holo: T.Mesh<T.PlaneGeometry, T.MeshBasicMaterial>; scan: T.Mesh<T.PlaneGeometry, T.MeshBasicMaterial>; hy: number };
 export type ClockHands = { h: T.Object3D; m: T.Object3D };
@@ -29,7 +30,7 @@ type P3 = [number, number, number];
  * The five sector gates, each a Vietnamese landmark: Ngọ Môn (Huế), Chùa Cầu (Hội An),
  * Khuê Văn Các (Hà Nội), Cầu Rồng with its fire-breathing dragon (Đà Nẵng), Chợ Bến Thành (Sài Gòn).
  */
-export function buildGates(scene: T.Scene, { rnd, addSign, fonts, uni }: Ctx): GateBits {
+export async function buildGates(scene: T.Scene, { rnd, addSign, fonts, uni }: Ctx, slice: Slice): Promise<GateBits> {
   const gates: Gate[] = [];
   let dragonUni: DragonUni | null = null;
   let dragonHead = new T.Vector3();
@@ -51,7 +52,8 @@ export function buildGates(scene: T.Scene, { rnd, addSign, fonts, uni }: Ctx): G
   const haM = [[1.5, 1.05, 0.25], [1.5, 0.2, 0.15], [1.4, 0.3, 0.75], [0.8, 0.3, 1.4], [0.25, 0.7, 1.5], [0.3, 1.3, 0.5], [1.5, 0.65, 0.2]].map((c) => new T.MeshBasicMaterial({ color: new T.Color(c[0], c[1], c[2]) }));
   const YV = new T.Vector3(0, 1, 0);
 
-  CPS.forEach((cp) => {
+  for (const cp of CPS) {
+    await slice();
     const g = new T.Group();
     g.position.z = cp.z;
     const zf = 5.06;
@@ -209,7 +211,7 @@ export function buildGates(scene: T.Scene, { rnd, addSign, fonts, uni }: Ctx): G
       lantern(8.5, 12.8, 11.6);
       hy = 36;
     } else if (cp.id === 'stack') {
-      const d = buildDragon(g, cp.z, uni, { V, YV, DS });
+      const d = await buildDragon(g, cp.z, uni, { V, YV, DS }, slice);
       dragonUni = d.uni;
       dragonHead = d.head;
       hy = 34;
@@ -309,17 +311,18 @@ export function buildGates(scene: T.Scene, { rnd, addSign, fonts, uni }: Ctx): G
     g.add(scan);
     scene.add(g);
     gates.push({ g, holo, scan, hy });
-  });
+  }
   if (!dragonUni) throw new Error('dragon gate missing');
   return { gates, gateMats, dragonUni, dragonHead, clocks };
 }
 
 /** Cầu Rồng: the golden dragon bridge, with scales, spines, legs, claws and a fire-breathing head. */
-function buildDragon(
+async function buildDragon(
   g: T.Group,
   gateZ: number,
   uni: Uni,
   { V, YV, DS }: { V: (x: number, y: number, z: number) => T.Vector3; YV: T.Vector3; DS: T.Side },
+  slice: Slice,
 ) {
   const Z0 = 40, L = 215;
   const yF = (ph: number) => 19 + 5.5 * Math.sin(ph * Math.PI * 3 + 0.9) * (1 - ph * 0.3),
@@ -362,6 +365,7 @@ function buildDragon(
   }
   tubeG.computeVertexNormals();
   g.add(new T.Mesh(tubeG, HM));
+  await slice();
   const frame = (u: number) => {
     const P = curve.getPointAt(u), Tg = curve.getTangentAt(u), side = new T.Vector3().crossVectors(Tg, YV).normalize(), up = new T.Vector3().crossVectors(side, Tg).normalize();
     return { P, T: Tg, side, up };
@@ -419,8 +423,10 @@ function buildDragon(
       for (let k = 0; k < 4; k++) cone(0.15, 1.2, clawM, wr, fr.up.clone().multiplyScalar(-0.75).addScaledVector(fr.T, -0.55).addScaledVector(sd, (k - 1.5) * 0.4), null);
     }
   };
+  await slice();
   legAt(0.13, true);
   legAt(0.5, false);
+  await slice();
   const tf = frame(1);
   for (let k = 0; k < 9; k++) {
     const an = -1 + (k / 8) * 2;

@@ -3,6 +3,7 @@ import { CPS } from '../data';
 import { mkRng } from './pure';
 import { canvasTex, radialTex, signTex, type Fonts } from './textures';
 import { buildGates, type GateBits } from './monuments';
+import type { Slice } from './yield';
 
 export type Uni = {
   uTime: { value: number };
@@ -52,8 +53,9 @@ const HS = 'float hs(vec2 p){vec3 p3=fract(vec3(p.xyx)*.1031);p3+=dot(p3,p3.yzx+
  * Builds the whole avenue: sky, towers and tube houses, road, lamps, wires, lanterns,
  * neon signage, gates (monuments.ts), dragon fire, sky traffic and rain.
  * Every rnd() call happens in the design's order so the seeded city matches it exactly.
+ * `slice()` hands the main thread back between steps so the build never blocks input.
  */
-export function buildWorld(scene: T.Scene, FOG: T.Color, fonts: Fonts, texCache: Map<string, T.CanvasTexture>): World {
+export async function buildWorld(scene: T.Scene, FOG: T.Color, fonts: Fonts, texCache: Map<string, T.CanvasTexture>, slice: Slice): Promise<World> {
   const rnd = mkRng(1337),
     R = (a: number, b: number) => a + (b - a) * rnd();
   const ph1 = new T.DataTexture(new Uint8Array([128, 128, 255, 255]), 1, 1);
@@ -148,6 +150,7 @@ gl_FragColor=vec4(mix(col,fogColor,clamp(fg,0.,1.)),1.);}`;
   });
   bim.frustumCulled = false;
   scene.add(bim);
+  await slice();
 
   const tMat = new T.ShaderMaterial({
     uniforms: uni,
@@ -200,6 +203,7 @@ gl_FragColor=vec4(mix(col,fogColor,clamp(fg,0.,1.)),1.);}`,
   });
   tim.frustumCulled = false;
   scene.add(tim);
+  await slice();
   // Balcony AC units on the tube houses (own RNG stream).
   const ar = mkRng(99), acs: V3[] = [];
   tubes.forEach((b) => {
@@ -213,6 +217,7 @@ gl_FragColor=vec4(mix(col,fogColor,clamp(fg,0.,1.)),1.);}`,
   });
   acM.frustumCulled = false;
   scene.add(acM);
+  await slice();
 
   // Landmark towers far down the avenue: a stepped spire and a round tower with a helipad.
   // uDist/uTex are bound (uTex 0 = untextured, as in the design) so no sampler is left without a texture.
@@ -266,6 +271,7 @@ gl_FragColor=vec4(mix(col,fogColor,clamp(fg,0.,1.)),1.);}`,
   const bxS = new T.Mesh(new T.CylinderGeometry(0.2, 0.9, 40, 6), lmG);
   bxS.position.set(-150, 285, -1600);
   scene.add(bxS);
+  await slice();
 
   const LEN = 4600, ZC = -1650;
   // The design drew an (unused) road texture here with 2600 random specks (5 rnd() each);
@@ -318,6 +324,7 @@ void main(){vec3 V=normalize(vW-cameraPosition);vec2 p=vW.xz;
   ground.rotation.x = -Math.PI / 2;
   ground.position.y = -0.05;
   scene.add(ground);
+  await slice();
   const walkM = new T.MeshStandardMaterial({ color: 0x17131f, roughness: 0.7 });
   const neon = (r: number, g: number, b: number) => new T.MeshBasicMaterial({ color: new T.Color(r, g, b) });
   const nP = neon(1.3, 0.2, 0.75), nC = neon(0.16, 1.0, 1.3);
@@ -344,6 +351,7 @@ void main(){vec3 V=normalize(vW-cameraPosition);vec2 p=vW.xz;
     shops.setColorAt(i, new T.Color(c[0] * k, c[1] * k, c[2] * k));
   });
   scene.add(shops);
+  await slice();
 
   // Street lamps with light pools and volumetric cones.
   const lamps: { s: number; z: number }[] = [];
@@ -393,6 +401,7 @@ void main(){vec3 V=normalize(vW-cameraPosition);vec2 p=vW.xz;
   });
   cones.frustumCulled = false;
   scene.add(cones);
+  await slice();
 
   // Tangled power lines between the lamp poles, and lantern strings across the street.
   const wp: number[] = [];
@@ -443,6 +452,7 @@ void main(){vec3 V=normalize(vW-cameraPosition);vec2 p=vW.xz;
     lanM.setColorAt(i, new T.Color(c[0], c[1], c[2]));
   });
   scene.add(lanM);
+  await slice();
 
   // Neon signage, batched into one InstancedMesh per sign material.
   const VH = [['PHỞ 24H', '#FF2D95'], ['BÁNH MÌ', '#ffc53d'], ['CÀ PHÊ SỮA ĐÁ', '#00E5FF'], ['BIA HƠI', '#ffc53d'], ['KARAOKE', '#b26bff'], ['NHÀ NGHỈ', '#FF2D95'], ['CƠM TẤM', '#27e08a'], ['HỦ TIẾU', '#ff4d4d'], ['TRÀ SỮA', '#FF2D95'], ['BÚN BÒ HUẾ', '#ff4d4d'], ['TIỆM VÀNG', '#ffc53d'], ['KHÁCH SẠN', '#00E5FF'], ['ĐIỆN THOẠI', '#00E5FF'], ['SỬA XE', '#27e08a'], ['ỐC ĐÊM', '#b26bff'], ['LẨU DÊ', '#ff4d4d'], ['REACT.JS', '#00E5FF'], ['NEXT.JS', '#ECECF4'], ['STRIPE', '#b26bff'], ['TOPY.DEV', '#FF2D95']];
@@ -479,8 +489,9 @@ void main(){vec3 V=normalize(vW-cameraPosition);vec2 p=vW.xz;
       scene.add(im);
     });
   const pick = <X,>(a: X[]) => a[(rnd() * a.length) | 0];
-  front.forEach((b) => {
-    if (b.z > 400 || b.z < -3500) return;
+  for (const b of front) {
+    await slice();
+    if (b.z > 400 || b.z < -3500) continue;
     const face = (-b.s * Math.PI) / 2;
     if (b.tube) {
       if (rnd() < 0.82) {
@@ -502,7 +513,7 @@ void main(){vec3 V=normalize(vW-cameraPosition);vec2 p=vW.xz;
         addSign(sg[0], sg[1], false, w, w / 4, b.s * 18.8, R(6, 10), b.z, face);
       }
     }
-  });
+  }
   ([['CHÀO MỪNG ĐẾN SÀI GÒN 2077', '#00E5FF', -470], ['CHỢ ĐÊM · NIGHT MARKET', '#FF2D95', -990], ['SHIP IT OR DIE', '#ffc53d', -1490], ['KHÔNG BUG · NO BUGS PAST HERE', '#27e08a', -1990], ['CÀ PHÊ SỮA ĐÁ DISTRICT', '#b26bff', -2480]] as [string, string, number][]).forEach((a) =>
     addSign(a[0], a[1], false, 20, 5, 0, 19, a[2], 0),
   );
@@ -546,8 +557,9 @@ void main(){vec3 V=normalize(vW-cameraPosition);vec2 p=vW.xz;
   const heroM = new T.Mesh(new T.PlaneGeometry(36, 18), new T.MeshBasicMaterial({ map: hero, transparent: true, side: T.DoubleSide, depthWrite: false }));
   heroM.position.set(0, 40, -40);
   scene.add(heroM);
+  await slice();
 
-  const gates = buildGates(scene, { rnd, addSign, fonts, uni });
+  const gates = await buildGates(scene, { rnd, addSign, fonts, uni }, slice);
 
   // Height the sky traffic climbs to while crossing each gate.
   const CLR: Record<string, number> = { about: 36, work: 29, ledger: 41, stack: 40, contact: 44 };
@@ -578,6 +590,7 @@ void main(){vec3 V=normalize(vW-cameraPosition);vec2 p=vW.xz;
   const fireLight = new T.PointLight(0xff8a2a, 0, 120, 0);
   fireLight.position.copy(gates.dragonHead);
   scene.add(fireLight);
+  await slice();
   const fire: Fire = { n: NF, pos, vel: new Float32Array(NF * 3), life, max: new Float32Array(NF).fill(1), sz, next: 0, pts: firePts, light: fireLight, t: 99, cd: 0 };
 
   // Project billboards on the approach to the WORK gate.
@@ -587,6 +600,7 @@ void main(){vec3 V=normalize(vW-cameraPosition);vec2 p=vW.xz;
     addSign(a[0], a[1], false, 12, 3, s * 14.5, 11, wz - 70 - i * 75, 0);
   });
   flushSigns();
+  await slice();
 
   // Sky traffic: 36 low cars over the avenue, the rest in lanes above the city.
   const NS = 170;
@@ -607,6 +621,7 @@ void main(){vec3 V=normalize(vW-cameraPosition);vec2 p=vW.xz;
   spLight.frustumCulled = false;
   scene.add(spBody);
   scene.add(spLight);
+  await slice();
 
   // Rain streaks that wrap around the camera.
   const N = 3200, rpos = new Float32Array(N * 6), re = new Float32Array(N * 2);

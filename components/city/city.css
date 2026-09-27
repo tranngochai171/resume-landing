@@ -186,9 +186,10 @@
   animation: city-blink 1s steps(1) infinite;
   color: #00e5ff;
 }
-/* Reduced-motion users get the 2D page; never flash the city boot screen at them. */
+/* Reduced-motion users get the 2D page; never flash the city boot screen or loader at them. */
 @media (prefers-reduced-motion: reduce) {
-  .city-boot {
+  .city-boot,
+  .city-load {
     display: none;
   }
 }
