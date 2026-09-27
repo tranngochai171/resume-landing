@@ -7,6 +7,8 @@ import { Chakra_Petch, JetBrains_Mono } from 'next/font/google';
 import { CPS, EMAIL, INITIAL_STATE, INTRO_LOG, SH, type CityState } from './data';
 import type { CityHandle } from './engine';
 import { pickView, probeWebGL } from './support';
+import { yearsInWords } from '@/lib/experience';
+import { useYearsOfExperience } from '@/hooks/useYearsOfExperience';
 import './city.css';
 
 // Same fallback chain as the design ('Chakra Petch', sans-serif / 'JetBrains Mono', monospace): symbols the
@@ -84,6 +86,7 @@ export function CityHome() {
   const [view, setView] = useState<'city' | '2d'>('city');
   const [s, setS] = useState<CityState>(INITIAL_STATE);
   const [copied, setCopied] = useState(false);
+  const years = useYearsOfExperience();
   const rootRef = useRef<HTMLElement>(null);
   const hostRef = useRef<HTMLDivElement>(null);
   const panelRef = useRef<HTMLElement>(null);
@@ -243,7 +246,7 @@ export function CityHome() {
             <h2 className="city-ready-title">
               RIDE THROUGH
               <br />
-              SIX YEARS OF SHIPPING
+              {yearsInWords(years).toUpperCase()} YEARS OF SHIPPING
             </h2>
             <p className="city-ready-lead">
               Tran Ngoc Hai - <span className="city-cyan">Senior Fullstack Developer</span>. Every neon gate on the avenue unlocks a file: about, work, ledger, stack, contact.
@@ -479,7 +482,8 @@ export function CityHome() {
             <div className="city-stats">
               <div>
                 <div className="city-stat-n">
-                  6<span className="city-pink">+</span>
+                  {years}
+                  <span className="city-pink">+</span>
                 </div>
                 <div className="city-stat-l">YEARS</div>
               </div>

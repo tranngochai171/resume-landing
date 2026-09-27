@@ -7,10 +7,13 @@ import { SplitReveal } from '@/components/motion/SplitReveal';
 import { ScrollDesaturate } from '@/components/motion/ScrollDesaturate';
 import { Portrait } from '@/components/ui/Portrait';
 import { useSectionView } from '@/hooks/useSectionView';
+import { useYearsOfExperience } from '@/hooks/useYearsOfExperience';
+import { capitalize, yearsInWords } from '@/lib/experience';
 
 export function About() {
   const ref = useRef<HTMLElement>(null);
   useSectionView('about', ref);
+  const years = useYearsOfExperience();
 
   return (
     <section
@@ -40,14 +43,16 @@ export function About() {
               </p>
             </FadeUp>
 
+            {/* Keyed: SplitText rewrites the DOM, so a new year count needs a fresh element to split. */}
             <SplitReveal
+              key={years}
               as="div"
               trigger="scroll"
               splitBy="words"
               stagger={0.03}
               className="font-condensed text-3xl font-bold uppercase leading-tight tracking-wide text-fg-muted md:text-5xl"
             >
-              &ldquo;Six years shipping production apps — from SEC-regulated
+              &ldquo;{capitalize(yearsInWords(years))} years shipping production apps — from SEC-regulated
               investment platforms to AI recruitment tools.&rdquo;
             </SplitReveal>
           </div>

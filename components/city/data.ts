@@ -1,4 +1,5 @@
 // Shared, three-free data for the Neon City: used by the React shell and the engine.
+import { getYearsOfExperience, yearsInWords } from '../../lib/experience';
 
 export type SectorId = 'about' | 'work' | 'ledger' | 'stack' | 'contact';
 
@@ -8,7 +9,7 @@ export type Sector = { id: SectorId; n: string; t: string; z: number; c: string;
 export const CPS: Sector[] = [
   { id: 'about', n: '01', t: 'ABOUT', z: -250, c: '#FF2D95', sub: 'SUBJECT PROFILE', loc: 'NGỌ MÔN · HUẾ' },
   { id: 'work', n: '02', t: 'WORK', z: -750, c: '#00E5FF', sub: 'FOUR SHIPPED BUILDS', loc: 'CHÙA CẦU · HỘI AN' },
-  { id: 'ledger', n: '03', t: 'LEDGER', z: -1250, c: '#FF2D95', sub: 'SEVEN ROLES · SIX YEARS', loc: 'KHUÊ VĂN CÁC · HÀ NỘI' },
+  { id: 'ledger', n: '03', t: 'LEDGER', z: -1250, c: '#FF2D95', sub: `SEVEN ROLES · ${yearsInWords(getYearsOfExperience()).toUpperCase()} YEARS`, loc: 'KHUÊ VĂN CÁC · HÀ NỘI' },
   { id: 'stack', n: '04', t: 'STACK', z: -1750, c: '#00E5FF', sub: 'TOOLS OF THE TRADE', loc: 'CẦU RỒNG · ĐÀ NẴNG' },
   { id: 'contact', n: '05', t: 'CONTACT', z: -2250, c: '#FF2D95', sub: 'OPEN A CHANNEL', loc: 'CHỢ BẾN THÀNH · SÀI GÒN' },
 ];
@@ -19,7 +20,7 @@ export type ShardKind = 'FILE' | 'TIP' | 'KEY';
 export const SH: { p: [number, number, number]; k: ShardKind; t: string }[] = [
   { p: [2.75, 1.7, -130], k: 'FILE', t: 'BASED IN HỒ CHÍ MINH CITY · UTC+7' },
   { p: [-2.75, 1.7, -470], k: 'TIP', t: 'PRESS V TO FLY - SOME SHARDS ONLY EXIST ABOVE THE ROOFTOPS' },
-  { p: [0, 30, -600], k: 'FILE', t: '6+ YEARS SHIPPING PRODUCTION WEB APPS' },
+  { p: [0, 30, -600], k: 'FILE', t: `${getYearsOfExperience()}+ YEARS SHIPPING PRODUCTION WEB APPS` },
   { p: [5.5, 1.7, -1020], k: 'FILE', t: '600+ AUTOMATED TESTS WRITTEN' },
   { p: [-5.5, 1.7, -1420], k: 'TIP', t: 'HOLD SHIFT TO BOOST · THE DRAGON AWAITS AT GATE 04' },
   { p: [0, 36, -1700], k: 'FILE', t: 'FINTECH · HEALTHTECH · AI RECRUITMENT' },

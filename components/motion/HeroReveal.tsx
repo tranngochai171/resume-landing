@@ -3,13 +3,14 @@
 import { useEffect, useRef } from 'react';
 import { gsap } from 'gsap';
 import { beats, beatOpacity } from '@/lib/hero-beats';
-import { getYearsOfExperience } from '@/lib/experience';
+import { useYearsOfExperience } from '@/hooks/useYearsOfExperience';
 
 interface Props {
   progressRef: React.MutableRefObject<number>;
 }
 
 export function HeroReveal({ progressRef }: Props) {
+  const years = useYearsOfExperience();
   const rootRef = useRef<HTMLDivElement>(null);
   const scrollCueRef = useRef<HTMLDivElement>(null);
   const scrollCueDismissed = useRef(false);
@@ -157,7 +158,7 @@ export function HeroReveal({ progressRef }: Props) {
           Senior Fullstack
         </div>
         <div className="mt-3 font-condensed text-xs font-bold uppercase tracking-widest text-fg/80 [text-shadow:0_2px_12px_rgba(0,0,0,0.85)]">
-          {getYearsOfExperience()}+ years shipping
+          {years}+ years shipping
         </div>
       </div>
       <div

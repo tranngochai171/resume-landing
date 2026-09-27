@@ -7,6 +7,8 @@ import { BootLoader, type BootHandle } from './BootLoader';
 import { CyberTerminal } from './CyberTerminal';
 import { BreachSection, type BreachHandle } from './BreachSection';
 import { scramble } from './scramble';
+import { capitalize, yearsInWords } from '@/lib/experience';
+import { useYearsOfExperience } from '@/hooks/useYearsOfExperience';
 import './os.css';
 
 // Scoped to the cyber routes only (preload:false keeps the elegant pages untouched).
@@ -103,8 +105,8 @@ const WORK = [
   },
 ];
 
+// Years shipping is prepended in render (it follows the current year).
 const STATS = [
-  { n: 6, suffix: 'p', label: 'YEARS SHIPPING' },
   { n: 7, suffix: '', label: 'COMPANIES' },
   { n: 10, suffix: 'p', label: 'PROJECTS SHIPPED' },
   { n: 600, suffix: 'c', label: 'TESTS WRITTEN' },
@@ -136,6 +138,7 @@ const STACK: { label: string; accent: Accent; items: string[] }[] = [
 ];
 
 export function CyberHome() {
+  const years = useYearsOfExperience();
   const rootRef = useRef<HTMLDivElement>(null);
   const cursorRef = useRef<HTMLDivElement>(null);
   const clockRef = useRef<HTMLSpanElement>(null);
@@ -521,7 +524,7 @@ export function CyberHome() {
             <div className="os-chips">
               <span className="os-chip">◇ HO CHI MINH CITY, VN</span>
               <span className="os-chip">◇ SHIPPING SINCE 2020</span>
-              <span className="os-chip">◇ 6+ YEARS // FINTECH · HEALTHTECH · SAAS</span>
+              <span className="os-chip">◇ {years}+ YEARS // FINTECH · HEALTHTECH · SAAS</span>
             </div>
 
             <div className="os-actions">
@@ -562,7 +565,7 @@ export function CyberHome() {
                 <div className="os-mono-pink" data-reveal>&gt; cat profile.md</div>
                 <p className="os-p" data-reveal>I build production apps — web and mobile — across <span className="c">FinTech</span>, <span className="c">HealthTech</span>, <span className="c">SaaS</span>, <span className="c">eCommerce</span>, and <span className="c">sports-tech</span>. React / Next.js and Flutter up front, Node / NestJS and Rails on the back, deep Stripe.</p>
                 <p className="os-p" data-reveal style={{ marginBottom: 30 }}>From SEC-regulated investment platforms to AI-powered recruitment tools to a social golf app. I own delivery end-to-end on teams of <span className="p">5–25</span>, ship on aggressive timelines, and interface directly with C-suite.</p>
-                <blockquote className="os-quote" data-reveal>“Six years shipping production apps — from SEC-regulated investment platforms to AI recruitment tools to a social golf platform.”</blockquote>
+                <blockquote className="os-quote" data-reveal>“{capitalize(yearsInWords(years))} years shipping production apps — from SEC-regulated investment platforms to AI recruitment tools to a social golf platform.”</blockquote>
               </div>
             </div>
           </div>
@@ -571,7 +574,7 @@ export function CyberHome() {
         {/* ---------- stats ---------- */}
         <section className="os-stats-wrap" id="stats">
           <div className="os-stats">
-            {STATS.map((s) => (
+            {[{ n: years, suffix: 'p', label: 'YEARS SHIPPING' }, ...STATS].map((s) => (
               <div className="os-stat" data-reveal data-countup={s.n} key={s.label}>
                 <div className="os-stat-num">
                   <span data-countup-num>0</span>

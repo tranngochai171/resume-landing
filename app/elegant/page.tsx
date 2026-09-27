@@ -1,10 +1,11 @@
 import type { Metadata } from 'next';
 import { ElegantHome } from '@/components/home/ElegantHome';
+import { getYearsOfExperience } from '@/lib/experience';
 
 export const metadata: Metadata = {
   title: 'Tran Ngoc Hai | Senior Fullstack Developer · Portfolio',
   description:
-    'Portfolio of Tran Ngoc Hai (Topy) - Senior Fullstack Developer. 6+ years shipping FinTech, HealthTech, SaaS and eCommerce: Dalmore, Nestwell, Zeligate, Trailer2you.',
+    `Portfolio of Tran Ngoc Hai (Topy) - Senior Fullstack Developer. ${getYearsOfExperience()}+ years shipping FinTech, HealthTech, SaaS and eCommerce: Dalmore, Nestwell, Zeligate, Trailer2you.`,
   alternates: { canonical: '/elegant' },
   openGraph: {
     title: 'Tran Ngoc Hai | Senior Fullstack Developer',

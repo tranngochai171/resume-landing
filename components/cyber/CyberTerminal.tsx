@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useRef } from 'react';
+import { getYearsOfExperience } from '@/lib/experience';
 
 const RESUME = '/resume/Topy_Tran_Resume_2026_AI_Workflows.pdf';
 const P = '#FF2D95', CY = '#00E5FF', G = '#27e08a', M = '#7c7c98', W = '#fff';
@@ -29,7 +30,7 @@ function terminalData() {
   ].join('\n');
   const contact = c('email    ', M) + c('tranngochai171@gmail.com', CY) + '\n' + c('location ', M) + 'Ho Chi Minh City, VN (GMT+7)\n' + c('status   ', M) + c('available for contract & full-time', G);
   const files = [
-    { name: 'about.md', color: CY, body: c('# TOPY // Tran Ngoc Hai', W) + '\nSenior fullstack developer, 6+ yrs. FinTech · HealthTech · SaaS · eCommerce · sports-tech.\nWeb and mobile: React/Next and Flutter up front, Node/NestJS and Rails on the back, deep Stripe.\nOwns delivery end-to-end on teams of 5-25. Based in Ho Chi Minh City (GMT+7).' },
+    { name: 'about.md', color: CY, body: c('# TOPY // Tran Ngoc Hai', W) + `\nSenior fullstack developer, ${getYearsOfExperience()}+ yrs.` + ' FinTech · HealthTech · SaaS · eCommerce · sports-tech.\nWeb and mobile: React/Next and Flutter up front, Node/NestJS and Rails on the back, deep Stripe.\nOwns delivery end-to-end on teams of 5-25. Based in Ho Chi Minh City (GMT+7).' },
     { name: 'dalmore.dossier', color: P, body: c('DALMORE GROUP', W) + c('  · FinTech · SEC-regulated', M) + '\nFrontend Developer @ Adroit Technology Solutions (2024-Feb 2026)\n• 3 portals - investor / issuer / compliance - under Reg A+, CF, D\n• Persona KYC/AML + sanctions, role-based access, audit trails\n• Multi-rail payments: Stripe · Plaid · ACH · wire' },
     { name: 'pinnedgolf.dossier', color: CY, body: c('PINNED GOLF', W) + c('  · GolfTech · social + GPS', M) + '\nSoftware Developer @ Insomnia Club (2026-present)\n• Social layer front-to-back: Flutter app + Ruby on Rails API\n• Instagram-style follows, add-friends-to-round, befriend co-players\n• Course ratings with corrected aggregate averages\n• Live on Google Play' },
     { name: 'nestwell.dossier', color: CY, body: c('NESTWELL', W) + c('  · HealthTech · 0->1', M) + '\nSoftware Developer @ Insomnia Club (2024-present)\n• Built from scratch: Next.js 14 · tRPC · Supabase\n• Quiz engine, environmental scoring, PDF reports, SimpleLab marketplace\n• 600+ Vitest tests · Playwright E2E · RLS over 16 tables / 20+ migrations' },
@@ -55,7 +56,7 @@ function terminalData() {
     c('  clear', CY) + '           clear screen',
     c('tip: try ', M) + c('cat nestwell.dossier', P),
   ].join('\n');
-  const whoami = c('topy', G) + ' - senior fullstack developer\n6+ years shipping production web & mobile apps. FinTech, HealthTech, SaaS, eCommerce, sports-tech.\nCurrently open to contract & full-time. Type ' + c('hire', P) + ' to start.';
+  const whoami = c('topy', G) + ` - senior fullstack developer\n${getYearsOfExperience()}+ years shipping` + ' production web & mobile apps. FinTech, HealthTech, SaaS, eCommerce, sports-tech.\nCurrently open to contract & full-time. Type ' + c('hire', P) + ' to start.';
   const social = c('LinkedIn ', M) + 'linkedin.com/in/topytran\n' + c('GitHub   ', M) + 'github.com/tranngochai171\n' + c('Resume   ', M) + 'type ' + c('resume', P) + ' to download';
   const hire = c('// LET’S BUILD', P) + '\nTell me what you’re shipping and your timeline.\nI’ll reply within ~24h. Opening the transmission console…';
   return { files, help, whoami, stack, ledger, social, contact, hire };
