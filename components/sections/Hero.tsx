@@ -1,5 +1,4 @@
 'use client';
-/// <reference types="react-dom/canary" />
 
 import { useRef, useCallback } from 'react';
 import { preload } from 'react-dom';
