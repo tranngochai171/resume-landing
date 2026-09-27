@@ -37,7 +37,8 @@ async function startRide(page: Page, mobile: boolean) {
   if (mobile) {
     await page.getByRole('button', { name: /START AUTOPILOT TOUR/ }).click();
   } else {
-    await expect(page.getByRole('button', { name: /IGNITE/ })).toBeVisible();
+    // The ready card appears once the engine has started (slow on SwiftShader under parallel load).
+    await expect(page.getByRole('button', { name: /IGNITE/ })).toBeVisible({ timeout: 60_000 });
     await page.keyboard.press('Enter');
   }
   await expect(page.getByRole('link', { name: 'CLASSIC', exact: true })).toBeVisible();
@@ -80,23 +81,24 @@ test.describe('Neon City (3D)', () => {
     }
   });
 
-  test('the loader paints with the server HTML and SKIP works while the city is still starting', async ({ page, request }) => {
+  test('the loader paints with the server HTML and SKIP works before the page is even hydrated', async ({ page, request }) => {
     const html = await (await request.get(CITY)).text();
     expect(html).toContain('city-load-pct');
-    // Hold the engine download until SKIP has been pressed, so the click lands before the city exists.
+    // Hold every script until SKIP has been tapped: the tap lands on the server-rendered loader before
+    // React has hydrated (let alone started the engine) and must still take the rider to the ready card.
     let release!: () => void;
     const held = new Promise<void>((r) => (release = r));
     await page.route('**/_next/static/chunks/**', async (route) => {
-      const res = await route.fetch();
-      const body = await res.text();
-      if (body.includes('UnrealBloomPass')) await held;
-      return route.fulfill({ response: res, body });
+      await held;
+      return route.continue();
     });
-    await page.goto(CITY);
+    await page.goto(CITY, { waitUntil: 'domcontentloaded' });
     await expect(page.locator('.city-boot')).toBeVisible();
     await page.getByRole('button', { name: /SKIP/ }).click();
     release();
-    await expect(page.getByRole('button', { name: /IGNITE|START AUTOPILOT TOUR/ })).toBeVisible({ timeout: 60_000 });
+    // Once the engine runs, the ready card must follow at once: the flyover alone takes at least 9.9 s.
+    await expect(page.locator('.city-boot')).toHaveCount(0, { timeout: 60_000 });
+    await expect(page.getByRole('button', { name: /IGNITE|START AUTOPILOT TOUR/ })).toBeVisible({ timeout: 8_000 });
   });
 
   test('panel content is in the server HTML for crawlers', async ({ request }) => {
