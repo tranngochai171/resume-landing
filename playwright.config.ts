@@ -5,7 +5,9 @@ export default defineConfig({
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,
-  workers: process.env.CI ? 1 : undefined,
+  // Each SwiftShader browser (the 3D tests) keeps every core busy; more than two at once starve the
+  // dev server, and start-up and 2D-fallback waits time out. Two is also the fastest full run.
+  workers: process.env.CI ? 1 : 2,
   reporter: 'list',
   use: {
     baseURL: 'http://localhost:3000',
