@@ -11,7 +11,9 @@ import './os.css';
 
 // Scoped to the cyber routes only (preload:false keeps the elegant pages untouched).
 const chakra = Chakra_Petch({ subsets: ['latin'], weight: ['400', '500', '600', '700'], variable: '--font-cyber', display: 'swap', preload: true });
-const cyberMono = JetBrains_Mono({ subsets: ['latin'], weight: ['400', '500', '700'], variable: '--font-cyber-mono', display: 'swap', preload: false });
+// Fallback is a metric-matched monospace (os.css), not next/font's scaled Arial: identical advance
+// widths mean nav, chips and buttons do not reflow when the webfont swaps in (layout shift).
+const cyberMono = JetBrains_Mono({ subsets: ['latin'], weight: ['400', '500', '700'], variable: '--font-cyber-mono', display: 'swap', preload: false, adjustFontFallback: false, fallback: ['TOPY Mono Fallback', 'monospace'] });
 
 const EMAIL = 'tranngochai171@gmail.com';
 const RESUME = '/resume/Topy_Tran_Resume_2026_AI_Workflows.pdf';

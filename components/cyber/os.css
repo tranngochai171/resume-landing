@@ -1,6 +1,22 @@
 /* TOPY.OS — Cyberpunk Portfolio. Faithful port of the .dc.html design.
    Everything is scoped under .os so it never leaks into the elegant site. */
 
+/* Stand-in for JetBrains Mono until it loads: same 0.6em advance (Courier New and friends) and
+   JetBrains Mono's ascent/descent, so text lays out identically before and after the swap. */
+@font-face {
+  font-family: 'TOPY Mono Fallback';
+  src: local('Courier New'), local('CourierNewPSMT'), local('Liberation Mono'), local('Cousine'), local('Menlo'), local('DejaVu Sans Mono');
+  ascent-override: 102%;
+  descent-override: 30%;
+  line-gap-override: 0%;
+}
+
+/* The boot overlay locks scrolling (body overflow: hidden), which removes a classic scrollbar;
+   keep its gutter so the page width, and everything centred in it, does not jump when it returns. */
+html:has(.os) {
+  scrollbar-gutter: stable;
+}
+
 .os {
   --void: #05050c;
   --surf: #0a0a14;
