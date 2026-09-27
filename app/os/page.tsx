@@ -10,7 +10,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: 'TOPY.OS — Tran Ngoc Hai // Cyberpunk Portfolio',
     description: 'Neon-noir cyberpunk portfolio — Senior Fullstack Developer · FinTech · HealthTech · SaaS · eCommerce.',
-    url: 'https://topy-tran.vercel.app',
+    url: 'https://topy-tran.vercel.app/os',
     type: 'website',
     images: ['/og-image.jpg'],
   },
