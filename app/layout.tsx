@@ -4,25 +4,40 @@ import { getYearsOfExperience } from '@/lib/experience';
 import { Analytics } from '@/components/analytics/Analytics';
 import './globals.css';
 
-const personLd = {
+const SITE = 'https://topy-tran.vercel.app';
+
+// One JSON-LD graph for every page: the person, and the site they author (linked by @id).
+const structuredData = {
   '@context': 'https://schema.org',
-  '@type': 'Person',
-  name: 'Tran Ngoc Hai',
-  alternateName: 'Topy Tran',
-  jobTitle: 'Senior Fullstack Developer',
-  url: 'https://topy-tran.vercel.app',
-  image: 'https://topy-tran.vercel.app/images/portrait/portrait-2026-720.jpg',
-  email: 'tranngochai171@gmail.com',
-  sameAs: [
-    'https://github.com/tranngochai171',
-    'https://linkedin.com/in/topytran',
+  '@graph': [
+    {
+      '@type': 'Person',
+      '@id': `${SITE}/#person`,
+      name: 'Tran Ngoc Hai',
+      alternateName: 'Topy Tran',
+      jobTitle: 'Senior Fullstack Developer',
+      url: `${SITE}/`,
+      image: `${SITE}/images/portrait/portrait-2026-720.jpg`,
+      email: 'tranngochai171@gmail.com',
+      sameAs: ['https://github.com/tranngochai171', 'https://linkedin.com/in/topytran'],
+      knowsAbout: ['FinTech', 'HealthTech', 'SaaS', 'eCommerce', 'React', 'Next.js', 'Node.js'],
+      address: {
+        '@type': 'PostalAddress',
+        addressLocality: 'Ho Chi Minh City',
+        addressCountry: 'VN',
+      },
+    },
+    {
+      '@type': 'WebSite',
+      '@id': `${SITE}/#website`,
+      url: `${SITE}/`,
+      name: 'TOPY.OS | Tran Ngoc Hai',
+      description: 'Portfolio of Tran Ngoc Hai (Topy), Senior Fullstack Developer: a 3D neon-city ride, the TOPY.OS 2D site and an elegant edition.',
+      inLanguage: 'en',
+      author: { '@id': `${SITE}/#person` },
+      about: { '@id': `${SITE}/#person` },
+    },
   ],
-  knowsAbout: ['FinTech', 'HealthTech', 'SaaS', 'eCommerce', 'React', 'Next.js', 'Node.js'],
-  address: {
-    '@type': 'PostalAddress',
-    addressLocality: 'Ho Chi Minh City',
-    addressCountry: 'VN',
-  },
 };
 
 const fraunces = Fraunces({
@@ -90,7 +105,7 @@ export default function RootLayout({
       <head>
         <script
           type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(personLd) }}
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
         />
       </head>
       <body className="bg-bg text-fg font-body antialiased">
