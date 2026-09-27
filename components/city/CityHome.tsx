@@ -435,7 +435,7 @@ export function CityHome() {
         </div>
         <div className="city-panel-body">
           <div className="city-sec city-sec--14" hidden={sec !== 'about'}>
-            <div className="city-sec-label">[ 01 // ABOUT ]</div>
+            <h2 className="city-sec-label">[ 01 // ABOUT ]</h2>
             <div className="city-about-id">
               <div className="city-about-portrait">
                 <picture>
@@ -444,7 +444,7 @@ export function CityHome() {
                 </picture>
               </div>
               <div className="city-about-name">
-                <h2>TRAN NGOC HAI</h2>
+                <h3>TRAN NGOC HAI</h3>
                 <div className="city-about-role">
                   SENIOR FULLSTACK DEV <span className="city-faint">{'// aka'}</span> <span className="city-pink">TOPY</span>
                 </div>
@@ -488,7 +488,7 @@ export function CityHome() {
           </div>
 
           <div className="city-sec city-sec--16" hidden={sec !== 'work'}>
-            <div className="city-sec-label">[ 02 // SELECTED WORK ]</div>
+            <h2 className="city-sec-label">[ 02 // SELECTED WORK ]</h2>
             {WORK.map((w) => (
               <article key={w.slug} className="city-work">
                 <picture>
@@ -516,7 +516,7 @@ export function CityHome() {
           </div>
 
           <div className="city-sec city-sec--14" hidden={sec !== 'ledger'}>
-            <div className="city-sec-label">[ 03 // LEDGER ]</div>
+            <h2 className="city-sec-label">[ 03 // LEDGER ]</h2>
             <div className="city-ledger">
               {LEDGER.map((l) => (
                 <div key={l.when + l.org} className="city-ledger-item">
@@ -530,7 +530,7 @@ export function CityHome() {
           </div>
 
           <div className="city-sec city-sec--16" hidden={sec !== 'stack'}>
-            <div className="city-sec-label">[ 04 // STACK ]</div>
+            <h2 className="city-sec-label">[ 04 // STACK ]</h2>
             {STACK.map(([group, items], i) => (
               <div key={group}>
                 <div className={`city-stack-h ${i % 2 ? 'city-cyan' : 'city-pink'}`}>▌{group}</div>
@@ -544,7 +544,7 @@ export function CityHome() {
           </div>
 
           <div className="city-sec city-sec--14" hidden={sec !== 'contact'}>
-            <div className="city-sec-label">[ 05 // CONTACT ]</div>
+            <h2 className="city-sec-label">[ 05 // CONTACT ]</h2>
             <div className="city-badges">
               <span className="city-badge-on">
                 <span className="city-dot" />
@@ -552,11 +552,11 @@ export function CityHome() {
               </span>
               <span className="city-badge">REPLIES ~24H</span>
             </div>
-            <h2 className="city-contact-title">
+            <h3 className="city-contact-title">
               END OF THE ROAD.
               <br />
               LET&apos;S BUILD.
-            </h2>
+            </h3>
             <p className="city-copy">Shipping something in FinTech, HealthTech or SaaS and need someone who owns delivery? Drop a line - I read every message.</p>
             <button type="button" className="city-copy-email" onClick={copyEmail}>
               <div className="city-copy-email-l">EMAIL - CLICK TO COPY</div>

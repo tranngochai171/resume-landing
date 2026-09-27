@@ -164,11 +164,10 @@ export const BootLoader = forwardRef<BootHandle>(function BootLoader(_props, ref
           <span className="v">TOPY.OS v2.6</span>
           <span>{tag}</span>
         </div>
-        <h2 className="os-boot-title">
-          <span className="glitch pink" aria-hidden="true">TOPY.OS</span>
-          <span className="glitch cyan" aria-hidden="true">TOPY.OS</span>
+        <div className="os-boot-title">
+          <span className="glitch" aria-hidden="true" data-text="TOPY.OS" />
           <span className="base">TOPY.OS</span>
-        </h2>
+        </div>
         <div className="os-boot-status" ref={statusRef} aria-hidden="true">&gt; DECRYPTING IDENTITY...</div>
         <div className="os-boot-log" aria-hidden="true">
           {log.map((e, i) =>

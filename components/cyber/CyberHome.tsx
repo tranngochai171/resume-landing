@@ -511,8 +511,8 @@ export function CyberHome() {
             <div className="os-prompt">&gt; whoami --verbose</div>
 
             <h1 className="os-title">
-              <span className="glitch pink" aria-hidden="true">TRAN NGOC<br />HAI</span>
-              <span className="glitch cyan" aria-hidden="true">TRAN NGOC<br />HAI</span>
+              {/* The pink / cyan glitch copies are drawn from data-text by CSS, so the name is in the DOM once. */}
+              <span className="glitch" aria-hidden="true" data-text={'TRAN NGOC\nHAI'} />
               <span className="base">TRAN NGOC<br />HAI</span>
             </h1>
 

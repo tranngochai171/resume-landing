@@ -103,6 +103,9 @@ test.describe('Neon City (3D)', () => {
     const html = await (await request.get('/')).text();
     for (const f of FILES) expect(html).toContain(f.text.replace("'", '&#x27;'));
     expect(html).toContain('/images/work/dalmore-desktop.webp');
+    // Outline: one h1 (the name), then an h2 per sector file.
+    expect(html.match(/<h1[ >]/g)).toHaveLength(1);
+    for (const f of FILES) expect(html).toContain(`<h2 class="city-sec-label">[ ${f.n} // `);
   });
 });
 
@@ -204,5 +207,9 @@ test.describe('2D fallback', () => {
     await page.goto('/os/');
     await expect(page.locator('#breach')).toBeAttached();
     await expect(page.locator('.city')).toHaveCount(0);
+    // The glitch copies are CSS-only: the name is in the DOM once and the boot title is not a heading.
+    await expect(page.locator('h1')).toHaveCount(1);
+    expect((await page.locator('h1').textContent())?.match(/TRAN NGOC/g)).toHaveLength(1);
+    await expect(page.locator('h1, h2, h3').filter({ hasText: /^TOPY\.OS$/ })).toHaveCount(0);
   });
 });

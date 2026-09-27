@@ -183,9 +183,11 @@ html:has(.os) {
   font-size: clamp(48px, 11.5vw, 150px); line-height: .9; letter-spacing: -.01em; color: #fff;
   text-shadow: 0 0 34px rgba(255, 255, 255, .1);
 }
-.os-title .glitch { position: absolute; inset: 0; mix-blend-mode: screen; }
-.os-title .glitch.pink { color: var(--pink); animation: os-glitchA 3.6s steps(1) infinite; }
-.os-title .glitch.cyan { color: var(--cyan); animation: os-glitchB 3.6s steps(1) infinite; }
+/* Glitch copies: ::before (pink) and ::after (cyan) of one empty layer placed before the real text. */
+.os-title .glitch, .os-boot-title .glitch { position: absolute; inset: 0; }
+.os-title .glitch::before, .os-title .glitch::after, .os-boot-title .glitch::before, .os-boot-title .glitch::after { content: attr(data-text); position: absolute; inset: 0; white-space: pre-line; mix-blend-mode: screen; }
+.os-title .glitch::before { color: var(--pink); animation: os-glitchA 3.6s steps(1) infinite; }
+.os-title .glitch::after { color: var(--cyan); animation: os-glitchB 3.6s steps(1) infinite; }
 .os-title .base { position: relative; }
 
 .os-role { margin-top: clamp(18px, 3vh, 30px); font-family: var(--mono); font-size: clamp(13px, 1.8vw, 18px); letter-spacing: .1em; color: var(--cyan); text-shadow: 0 0 16px rgba(0, 229, 255, .4); }
@@ -312,9 +314,8 @@ html:has(.os) {
 .os-boot-head { display: flex; align-items: center; justify-content: space-between; font-size: 10.5px; letter-spacing: .22em; color: var(--faint); margin-bottom: 16px; }
 .os-boot-head .v { color: var(--pink); text-shadow: 0 0 12px rgba(255, 45, 149, .6); }
 .os-boot-title { position: relative; display: inline-block; margin: 0 0 10px; font-family: var(--display); font-weight: 700; font-size: clamp(40px, 9vw, 72px); line-height: .9; letter-spacing: .02em; color: #fff; }
-.os-boot-title .glitch { position: absolute; inset: 0; mix-blend-mode: screen; }
-.os-boot-title .glitch.pink { color: var(--pink); animation: os-glitchA 2.6s steps(1) infinite; }
-.os-boot-title .glitch.cyan { color: var(--cyan); animation: os-glitchB 2.6s steps(1) infinite; }
+.os-boot-title .glitch::before { color: var(--pink); animation: os-glitchA 2.6s steps(1) infinite; }
+.os-boot-title .glitch::after { color: var(--cyan); animation: os-glitchB 2.6s steps(1) infinite; }
 .os-boot-title .base { position: relative; }
 .os-boot-status { font-size: 12px; letter-spacing: .14em; color: var(--cyan); min-height: 18px; margin-bottom: 16px; }
 .os-boot-log { height: 92px; overflow: hidden; font-size: 11.5px; line-height: 1.7; color: #6f7a86; border-top: 1px solid rgba(255, 255, 255, .08); border-bottom: 1px solid rgba(255, 255, 255, .08); padding: 8px 0; margin-bottom: 18px; }
