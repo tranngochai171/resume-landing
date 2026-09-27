@@ -1,11 +1,13 @@
 /* TOPY.OS — Cyberpunk Portfolio. Faithful port of the .dc.html design.
    Everything is scoped under .os so it never leaks into the elegant site. */
 
-/* Stand-in for JetBrains Mono until it loads: same 0.6em advance (Courier New and friends) and
-   JetBrains Mono's ascent/descent, so text lays out identically before and after the swap. */
+/* Stand-in for JetBrains Mono until it loads: same 0.6em advance (Courier New, and on Android
+   Droid Sans Mono / Roboto Mono) and JetBrains Mono's ascent/descent, so text lays out identically
+   before and after the swap. */
 @font-face {
   font-family: 'TOPY Mono Fallback';
-  src: local('Courier New'), local('CourierNewPSMT'), local('Liberation Mono'), local('Cousine'), local('Menlo'), local('DejaVu Sans Mono');
+  src: local('Courier New'), local('CourierNewPSMT'), local('Liberation Mono'), local('Cousine'), local('Menlo'), local('DejaVu Sans Mono'),
+    local('Droid Sans Mono'), local('DroidSansMono'), local('Roboto Mono'), local('RobotoMono-Regular');
   ascent-override: 102%;
   descent-override: 30%;
   line-gap-override: 0%;
@@ -15,6 +17,8 @@
    keep its gutter so the page width, and everything centred in it, does not jump when it returns. */
 html:has(.os) {
   scrollbar-gutter: stable;
+  /* The gutter shows the root background: match the page (--void) so it never reads as a strip. */
+  background-color: #05050c;
 }
 
 .os {
