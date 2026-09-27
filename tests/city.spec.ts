@@ -59,8 +59,9 @@ test.describe('Neon City (3D)', () => {
     for (const f of FILES) {
       const warp = mobile ? page.getByRole('button', { name: `Warp to sector ${f.n} ${f.t}` }) : page.locator('button[title="Warp to sector"]', { hasText: f.n });
       await warp.click();
-      await expect(panel).toBeVisible({ timeout: 90_000 });
-      await expect(panel).toContainText(`FILE://${f.t}.dossier`);
+      // SwiftShader under parallel load can drop to a few frames per second: wait on this gate's file itself.
+      await expect(panel).toContainText(`FILE://${f.t}.dossier`, { timeout: 120_000 });
+      await expect(panel).toBeVisible();
       await expect(panel).toContainText(f.text);
     }
     await panel.getByRole('button', { name: /CLOSE/ }).click();
