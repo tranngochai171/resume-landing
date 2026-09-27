@@ -11,7 +11,7 @@ import { intro, ride } from './ride';
 import { deadzone } from './pure';
 import { applyAssets, fetchTextures, reserveAssetSlots, type AssetSlots } from './assets';
 import { postMaterials, warmUp } from './warm';
-import { slicer } from './yield';
+import { CANCELLED, slicer } from './yield';
 import type { Fonts } from './textures';
 
 export type CityCallbacks = {
@@ -80,6 +80,8 @@ export class Engine {
   private perf = { acc: 0, n: 0, cool: 2 };
   private dead = false;
   private failed = false;
+  /** Set once init has finished and the first frame is scheduled; before that the renderer exists but the city may not. */
+  private running = false;
   private raf = 0;
   private last = 0;
   private t0 = 0;
@@ -154,7 +156,7 @@ export class Engine {
       if (document.hidden) {
         cancelAnimationFrame(this.raf);
         this.raf = 0;
-      } else if (!this.raf && this.renderer && !this.dead && !this.failed) {
+      } else if (this.running && !this.raf && !this.dead && !this.failed) {
         this.last = performance.now();
         this.raf = requestAnimationFrame(this.loop);
       }
@@ -190,7 +192,9 @@ export class Engine {
       removeEventListener('pointerdown', pd);
       document.removeEventListener('visibilitychange', vis);
     };
-    this.init().catch((err) => this.fail(err));
+    this.init().catch((err) => {
+      if (err !== CANCELLED) this.fail(err);
+    });
   }
 
   private async init() {
@@ -228,7 +232,8 @@ export class Engine {
     cam.updateMatrixWorld();
     const textures = fetchTextures(r.capabilities.getMaxAnisotropy());
     // Build in short slices so the page (SKIP, keys) stays responsive and no task blocks the thread.
-    const slice = slicer(SLICE_MS);
+    // Every step checks for disposal: an unmount or fallback mid-build stops the build right there.
+    const slice = slicer(SLICE_MS, { cancelled: () => this.dead });
     await slice();
     this.w = await buildWorld(scene, FOG, this.fonts, this.texCache, slice);
     if (this.dead) return;
@@ -261,7 +266,7 @@ export class Engine {
     }
     const { ride } = await warmUp(r, scene, cam, this.ck.ck, [...(this.post ? postMaterials(this.post) : []), ...this.slots.filterMaterials], slice);
     if (this.dead) return;
-    ride.catch((e) => console.warn('[city] warm-up', e));
+    ride.catch((e) => e !== CANCELLED && console.warn('[city] warm-up', e));
     const slots = this.slots;
     textures
       .then((t) => applyAssets(r, scene, this.w.uni, this.w.gateMats, slots, t, this.ck.ck, () => this.dead))
@@ -271,6 +276,9 @@ export class Engine {
         if (this.dead) this.releaseAssets();
       })
       .catch((e) => console.warn('[city] assets', e));
+    // Resizes during the build were ignored (see resize()); apply the current size once, then go live.
+    this.running = true;
+    this.resize();
     this.set({ phase: 'loading', shards: this.shards.got.size });
     this.t0 = this.last = performance.now();
     this.raf = requestAnimationFrame(this.loop);
@@ -385,7 +393,7 @@ export class Engine {
   }
 
   private resize() {
-    if (!this.renderer) return;
+    if (!this.running) return;
     const w = this.host.clientWidth, h = this.host.clientHeight;
     if (!w || !h) return;
     this.renderer.setSize(w, h);

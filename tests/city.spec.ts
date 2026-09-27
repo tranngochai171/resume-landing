@@ -99,6 +99,8 @@ test.describe('Neon City (3D)', () => {
     // Once the engine runs, the ready card must follow at once: the flyover alone takes at least 9.9 s.
     await expect(page.locator('.city-boot')).toHaveCount(0, { timeout: 60_000 });
     await expect(page.getByRole('button', { name: /IGNITE|START AUTOPILOT TOUR/ })).toBeVisible({ timeout: 8_000 });
+    // The early tap was handed over and its listener/flag cleared, so a later visit cannot auto-skip.
+    expect(await page.evaluate(() => Object.keys(window).filter((k) => k.startsWith('__cityEarlySkip')))).toEqual([]);
   });
 
   test('panel content is in the server HTML for crawlers', async ({ request }) => {
@@ -128,6 +130,86 @@ function trackFallbacks(page: Page) {
   });
   return calls;
 }
+
+test.describe('Neon City start-up', () => {
+  test.setTimeout(180_000);
+
+  test('a tab switch and a resize during start-up neither start the city early nor double its render loop', async ({ page }) => {
+    const fallbacks = trackFallbacks(page);
+    const errors = trackErrors(page);
+    await page.addInitScript(() => {
+      const w = window as unknown as { __holdCompile: boolean; __rafDup: number };
+      w.__holdCompile = true;
+      w.__rafDup = 0;
+      // Advertise parallel shader compile (SwiftShader lacks it; its compiles are synchronous, so
+      // "complete" is true once released) and report every shader as still compiling until then:
+      // start-up parks in warm-up, with the renderer and the city built but not live yet.
+      const proto = WebGL2RenderingContext.prototype;
+      const COMPLETION_STATUS_KHR = 0x91b1;
+      type GetExtension = (this: WebGL2RenderingContext, name: string) => unknown;
+      const ext = proto.getExtension as unknown as GetExtension;
+      proto.getExtension = function (this: WebGL2RenderingContext, name: string) {
+        return ext.call(this, name) ?? (name === 'KHR_parallel_shader_compile' ? { COMPLETION_STATUS_KHR } : null);
+      } as unknown as typeof proto.getExtension;
+      const gpp = proto.getProgramParameter;
+      proto.getProgramParameter = function (this: WebGL2RenderingContext, p: WebGLProgram, pname: number) {
+        return pname === COMPLETION_STATUS_KHR ? !w.__holdCompile : gpp.call(this, p, pname);
+      };
+      // A render loop re-queues the same callback once per frame; two loops would queue it twice.
+      const pending = new Map<FrameRequestCallback, number>();
+      const ids = new Map<number, FrameRequestCallback>();
+      const raf = window.requestAnimationFrame.bind(window);
+      const caf = window.cancelAnimationFrame.bind(window);
+      const done = (cb: FrameRequestCallback) => pending.set(cb, (pending.get(cb) ?? 1) - 1);
+      window.requestAnimationFrame = (cb) => {
+        const n = (pending.get(cb) ?? 0) + 1;
+        pending.set(cb, n);
+        w.__rafDup = Math.max(w.__rafDup, n);
+        const id = raf((ts) => {
+          ids.delete(id);
+          done(cb);
+          cb(ts);
+        });
+        ids.set(id, cb);
+        return id;
+      };
+      window.cancelAnimationFrame = (id) => {
+        const cb = ids.get(id);
+        if (cb) {
+          ids.delete(id);
+          done(cb);
+        }
+        caf(id);
+      };
+    });
+    const setHidden = (hidden: boolean) =>
+      page.evaluate((h) => {
+        Object.defineProperty(document, 'hidden', { configurable: true, get: () => h });
+        Object.defineProperty(document, 'visibilityState', { configurable: true, get: () => (h ? 'hidden' : 'visible') });
+        document.dispatchEvent(new Event('visibilitychange'));
+      }, hidden);
+    await page.goto(CITY);
+    await expect(page.locator('.city canvas')).toBeAttached({ timeout: 60_000 });
+    const vp = page.viewportSize()!;
+    const size = { width: vp.width - 40, height: vp.height - 40 };
+    await page.setViewportSize(size); // resize while the city is being built
+    await setHidden(true); // tab away and back while it is being built
+    await setHidden(false);
+    await page.waitForTimeout(1000);
+    await expect(page.locator('.city-boot')).toBeVisible(); // still starting: nothing went live early
+    await page.evaluate(() => ((window as unknown as { __holdCompile: boolean }).__holdCompile = false));
+    await waitForCity(page);
+    await page.getByRole('button', { name: /SKIP/ }).click();
+    await expect(page.getByRole('button', { name: /IGNITE|START AUTOPILOT TOUR/ })).toBeVisible({ timeout: 60_000 });
+    await page.waitForTimeout(500);
+    expect(await page.evaluate(() => (window as unknown as { __rafDup: number }).__rafDup)).toBe(1);
+    // The resize made during the build was applied when the city went live.
+    expect(await page.locator('.city canvas').evaluate((c) => (c as HTMLCanvasElement).style.width)).toBe(`${size.width}px`);
+    expect(fallbacks).toEqual([]);
+    expect(errors).toEqual([]);
+    await expect(page.locator('#breach')).toHaveCount(0);
+  });
+});
 
 test.describe('Neon City hands over to 2D at runtime', () => {
   test.setTimeout(180_000);

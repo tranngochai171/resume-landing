@@ -9,16 +9,22 @@ export function yieldToMain(): Promise<void> {
   return s?.yield ? s.yield() : new Promise((r) => setTimeout(r, 0));
 }
 
+/** Thrown by a slice once the work it paces has been cancelled (the engine was disposed). */
+export const CANCELLED = new Error('city start-up cancelled');
+
 /**
  * Returns `slice()`: await it between steps of long work. It only yields once `budgetMs` of
- * work has run since the last yield, so frequent calls are cheap.
+ * work has run since the last yield, so frequent calls are cheap. Once `cancelled()` is true it
+ * throws CANCELLED, so the work stops at its next step instead of running on against a dead engine.
  */
-export function slicer(budgetMs: number, now: () => number = () => performance.now()) {
+export function slicer(budgetMs: number, { cancelled = () => false, now = () => performance.now() }: { cancelled?: () => boolean; now?: () => number } = {}) {
   let t0 = now();
   return async () => {
-    if (now() - t0 < budgetMs) return;
-    await yieldToMain();
-    t0 = now();
+    if (now() - t0 >= budgetMs) {
+      await yieldToMain();
+      t0 = now();
+    }
+    if (cancelled()) throw CANCELLED;
   };
 }
 

@@ -80,7 +80,11 @@ async function touchPrograms(renderer: T.WebGLRenderer, materials: Set<T.Materia
     const progs = (renderer.properties.get(m) as MaterialProps).programs;
     for (const p of progs ? Array.from(progs.values()) : []) {
       if (touched.has(p)) continue;
-      while (!p.isReady()) await new Promise((r) => setTimeout(r, 16));
+      // slice() also throws once the engine is disposed, so a lost context cannot keep this polling.
+      while (!p.isReady()) {
+        await new Promise((r) => setTimeout(r, 16));
+        await slice();
+      }
       touched.add(p);
       p.getUniforms();
       p.getAttributes();

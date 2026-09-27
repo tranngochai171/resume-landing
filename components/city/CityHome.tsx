@@ -56,7 +56,12 @@ const OFF = '#6a6a86';
  * The loader (and its SKIP button) is server-rendered, so it can be tapped before React hydrates.
  * This inline listener, placed ahead of the loader in the HTML, remembers such a tap.
  */
-const EARLY_SKIP = "document.addEventListener('click',function(e){var t=e.target;if(t&&t.closest&&t.closest('.city-skip'))window.__cityEarlySkip=1},true)";
+const EARLY_SKIP =
+  "(function(){function h(e){var t=e.target;if(t&&t.closest&&t.closest('.city-skip'))window.__cityEarlySkip=1}" +
+  "document.addEventListener('click',h,true);" +
+  "window.__cityEarlySkipOff=function(){document.removeEventListener('click',h,true);delete window.__cityEarlySkip;delete window.__cityEarlySkipOff}})()";
+
+type EarlySkip = { __cityEarlySkip?: number; __cityEarlySkipOff?: () => void };
 
 /** Resolves after the next paint once the main thread is idle (or after 300 ms at the latest). */
 function afterPaintIdle() {
@@ -87,7 +92,11 @@ export function CityHome() {
   const skipQueued = useRef(false);
 
   useEffect(() => {
-    if ((window as { __cityEarlySkip?: number }).__cityEarlySkip) skipQueued.current = true;
+    // Hydrated: take over a pre-hydration SKIP tap, then drop the early listener and its flag so a
+    // later client-side visit to / does not skip by itself.
+    const early = window as EarlySkip;
+    if (early.__cityEarlySkip) skipQueued.current = true;
+    early.__cityEarlySkipOff?.();
     if (pickView(window.location.search, window.matchMedia('(prefers-reduced-motion: reduce)').matches, probeWebGL) === '2d') {
       setView('2d');
       return;
