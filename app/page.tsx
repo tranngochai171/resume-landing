@@ -1,9 +1,7 @@
 import type { Metadata } from 'next';
-import { getSiteVariant } from '@/lib/siteVariant';
-import { HomeVariant } from '@/components/home/HomeVariant';
+import { CityHome } from '@/components/city/CityHome';
 
-// Metadata describes the default variant: the TOPY.OS Neon City (3D, with TOPY.OS 2D as its fallback).
-// If NEXT_PUBLIC_SITE_VARIANT selects another home for `/`, adjust the copy here to match.
+// `/` is the TOPY.OS Neon City (3D, falling back to TOPY.OS 2D in place when WebGL is unusable).
 const TITLE = 'TOPY.OS Neon City | Tran Ngoc Hai · Senior Fullstack Developer';
 const DESCRIPTION =
   'A 3D neon-city portfolio: ride through the work of Tran Ngoc Hai (Topy), Senior Fullstack Developer in FinTech, HealthTech, SaaS, eCommerce and sports-tech.';
@@ -24,8 +22,7 @@ export const metadata: Metadata = {
   twitter: { card: 'summary_large_image', title: TITLE, description: SOCIAL, images: [IMAGE] },
 };
 
-// `/` serves whichever variant the NEXT_PUBLIC_SITE_VARIANT flag selects (city by default).
-// The 2D versions are always reachable directly at /elegant and /os.
+// The 2D versions live at /os and /elegant.
 export default function HomePage() {
-  return <HomeVariant variant={getSiteVariant()} />;
+  return <CityHome />;
 }
