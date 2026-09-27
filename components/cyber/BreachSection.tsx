@@ -23,7 +23,7 @@ const DAEMON_LEN = 4;
 const TIME = 50; // seconds — the "trace"
 
 const PINK = '#FF2D95', CYAN = '#00E5FF', GREEN = '#27e08a', VOID = '#05050c';
-const FG = '#c7c7da', MUTED = '#9a9ab4', DIM = '#7c7c98', FAINT = '#55556e';
+const FG = '#c7c7da', MUTED = '#9a9ab4', DIM = '#7c7c98', FAINT = '#7a7a96';
 const MONO = 'var(--mono)';
 const DISPLAY = 'var(--display)';
 

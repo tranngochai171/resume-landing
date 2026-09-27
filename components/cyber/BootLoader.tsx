@@ -154,11 +154,13 @@ export const BootLoader = forwardRef<BootHandle>(function BootLoader(_props, ref
   if (!visible) return null;
 
   return (
-    <div className={`os-boot${off ? ' off' : ''}`} aria-hidden="true">
-      <div className="os-boot-scanlines" />
-      <div className="os-boot-floor"><div className="os-boot-grid" /></div>
+    // A labelled region, not aria-hidden: it holds the focusable SKIP button. Only the decorative
+    // parts are hidden from assistive tech.
+    <section className={`os-boot${off ? ' off' : ''}`} aria-label="TOPY.OS boot sequence">
+      <div className="os-boot-scanlines" aria-hidden="true" />
+      <div className="os-boot-floor" aria-hidden="true"><div className="os-boot-grid" /></div>
       <div className={`os-boot-inner${glitch ? ' glitch' : ''}`}>
-        <div className="os-boot-head">
+        <div className="os-boot-head" aria-hidden="true">
           <span className="v">TOPY.OS v2.6</span>
           <span>{tag}</span>
         </div>
@@ -167,8 +169,8 @@ export const BootLoader = forwardRef<BootHandle>(function BootLoader(_props, ref
           <span className="glitch cyan" aria-hidden="true">TOPY.OS</span>
           <span className="base">TOPY.OS</span>
         </h2>
-        <div className="os-boot-status" ref={statusRef}>&gt; DECRYPTING IDENTITY...</div>
-        <div className="os-boot-log">
+        <div className="os-boot-status" ref={statusRef} aria-hidden="true">&gt; DECRYPTING IDENTITY...</div>
+        <div className="os-boot-log" aria-hidden="true">
           {log.map((e, i) =>
             e.kind === 'ok' ? (
               <div key={i}>
@@ -180,15 +182,15 @@ export const BootLoader = forwardRef<BootHandle>(function BootLoader(_props, ref
             )
           )}
         </div>
-        <div className="os-boot-meter">
+        <div className="os-boot-meter" aria-hidden="true">
           <div className="os-boot-pct">{String(pct).padStart(3, '0')}<span className="u">%</span></div>
           <div className="os-boot-bar-wrap"><div className="os-boot-bar" style={{ width: `${pct}%` }} /></div>
         </div>
         <div className="os-boot-foot">
-          <div className={`os-boot-online${online ? ' on' : ''}`}>SYSTEM ONLINE<span className="cur" /></div>
-          <button className="os-boot-skip" onClick={skip}>SKIP ⏎</button>
+          <div className={`os-boot-online${online ? ' on' : ''}`} aria-hidden="true">SYSTEM ONLINE<span className="cur" /></div>
+          <button className="os-boot-skip" onClick={skip} aria-label="Skip the boot sequence">SKIP ⏎</button>
         </div>
       </div>
-    </div>
+    </section>
   );
 });
